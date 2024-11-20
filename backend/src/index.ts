@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import aiAssistantRoutes from './routes/ai-assistant';
+import activityRoutes from './routes/activity';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/ai-assistant', aiAssistantRoutes);
+app.use('/api/activities', activityRoutes);
 
 // Error handling
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
