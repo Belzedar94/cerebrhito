@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import aiAssistantRoutes from './routes/ai-assistant';
 import activityRoutes from './routes/activity';
+import developmentRoutes from './routes/development';
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/ai-assistant', aiAssistantRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/development', developmentRoutes);
 
 // Error handling
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
