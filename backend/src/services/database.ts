@@ -1,4 +1,6 @@
 import { supabase } from '../config/supabase';
+import { IService } from './base';
+import { logger } from '../utils/logger';
 import type {
   User,
   Child,
@@ -11,7 +13,22 @@ import type {
   Notification,
 } from '../types/database';
 
-export class DatabaseService {
+export class DatabaseService implements IService {
+  async init(): Promise<void> {
+    try {
+      const { data, error } = await supabase.from('users').select().limit(1);
+      if (error) throw error;
+      logger.info('Database connection established');
+    } catch (error) {
+      logger.error('Failed to connect to database', error);
+      throw error;
+    }
+  }
+
+  async dispose(): Promise<void> {
+    // No need to dispose Supabase client
+    logger.info('Database service disposed');
+  }
   // User operations
   async createUser(userData: Omit<User, 'id' | 'created_at' | 'updated_at'>) {
     const { data, error } = await supabase

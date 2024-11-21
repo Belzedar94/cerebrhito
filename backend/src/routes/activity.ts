@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import { ActivityController } from '../controllers/activity';
 import { AuthMiddleware } from '../middleware/auth';
+import { apiLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const activityController = new ActivityController();
 const authMiddleware = new AuthMiddleware();
 
-// All routes require authentication
+// All routes require authentication and rate limiting
 router.use(authMiddleware.authenticate);
+router.use(apiLimiter);
 
 // Activity management
 router.post(

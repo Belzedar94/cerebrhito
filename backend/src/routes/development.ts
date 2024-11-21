@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import { DevelopmentController } from '../controllers/development';
 import { AuthMiddleware } from '../middleware/auth';
+import { apiLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const developmentController = new DevelopmentController();
 const authMiddleware = new AuthMiddleware();
 
-// All routes require authentication
+// All routes require authentication and rate limiting
 router.use(authMiddleware.authenticate);
+router.use(apiLimiter);
 
 // Milestone management
 router.post(
