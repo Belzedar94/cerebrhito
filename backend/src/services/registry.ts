@@ -1,14 +1,22 @@
 import { ServiceLocator } from './base';
 import { DatabaseService } from './database';
 import { AIAssistantService } from './aiAssistant';
+import { CacheService } from './cache';
 import { logger } from '../utils/logger';
 
 export async function initializeServices(): Promise<ServiceLocator> {
   const serviceLocator = ServiceLocator.getInstance();
 
   try {
-    // Initialize database service
-    const dbService = new DatabaseService();
+    // Initialize cache service
+    const cacheService = new CacheService({
+      url: process.env.REDIS_URL,
+      defaultTtl: 300 // 5 minutes default TTL
+    });
+    serviceLocator.register('cache', cacheService);
+
+    // Initialize database service with cache
+    const dbService = new DatabaseService(cacheService);
     serviceLocator.register('database', dbService);
 
     // Initialize AI assistant service
