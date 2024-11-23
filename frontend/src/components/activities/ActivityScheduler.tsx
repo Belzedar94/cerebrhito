@@ -1,137 +1,68 @@
-import { useState, useEffect } from 'react';
-import { useActivities } from '@/hooks/useActivities';
-import { ActivityCard } from './ActivityCard';
+'use client'
 
-interface ActivitySchedulerProps {
-  childId: string;
-  onSchedule?: () => void;
-}
+import React, { useState } from 'react';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { ActivityScheduler } from '@/components/activities/ActivityScheduler';
+import { AIAssistant } from '@/components/ai-assistant/AIAssistant';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { useRouter } from 'next/navigation';
 
-export function ActivityScheduler({ childId, onSchedule }: ActivitySchedulerProps) {
-  const [activities, setActivities] = useState<any[]>([]);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const {
-    getActivitiesForChild,
-    generateSuggestions,
-    scheduleActivity,
-  } = useActivities();
-
-  // Load activities and suggestions
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setError(null);
-        setLoading(true);
-
-        const [activityList, suggestionList] = await Promise.all([
-          getActivitiesForChild(childId),
-          generateSuggestions(childId),
-        ]);
-
-        setActivities(activityList);
-        setSuggestions(suggestionList);
-      } catch (err) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [childId, getActivitiesForChild, generateSuggestions]);
-
-  const handleSchedule = async (activityId: string) => {
-    if (!selectedDate) {
-      setError('Por favor selecciona una fecha');
-      return;
-    }
-
-    try {
-      setError(null);
-      await scheduleActivity({
-        childId,
-        activityId,
-        scheduledFor: new Date(selectedDate).toISOString(),
-      });
-
-      onSchedule?.();
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
+export default function HomePage() {
+  const [selectedChild, setSelectedChild] = useState<string | null>(null);
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
+      <div className="flex h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        {error}
-      </div>
-    );
+  if (!user) {
+    router.push('/signin');
+    return null;
   }
 
   return (
-    <div className="space-y-8">
-      {/* Date selector */}
-      <div className="mb-6">
-        <label htmlFor="scheduledDate" className="block text-sm font-medium text-gray-700">
-          Fecha y hora
-        </label>
-        <input
-          type="datetime-local"
-          id="scheduledDate"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-        />
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-bold mb-8">Welcome to CerebrHito</h1>
+          
+          {/* Child selector */}
+          <div className="mb-8">
+            <label htmlFor="child" className="block text-sm font-medium text-gray-700">
+              Select a child
+            </label>
+            <select
+              id="child"
+              value={selectedChild || ''}
+              onChange={(e) => setSelectedChild(e.target.value || null)}
+              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+            >
+              <option value="">Select a child</option>
+              {/* TODO: Add children from user profile */}
+              <option value="1">Juan (2 years)</option>
+              <option value="2">María (1 year)</option>
+            </select>
+          </div>
+
+          {selectedChild && (
+            <div className="grid gap-8 md:grid-cols-2">
+              <div>
+                <h2 className="text-2xl font-semibold mb-4">Activity Scheduler</h2>
+                <ActivityScheduler childId={selectedChild} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold mb-4">AI Assistant</h2>
+                <AIAssistant childId={selectedChild} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* AI suggestions */}
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Sugerencias del AI</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {suggestions.map((activity) => (
-            <ActivityCard
-              key={activity.id}
-              name={activity.name}
-              description={activity.description}
-              duration={activity.durationMinutes}
-              category={activity.category}
-              tags={activity.tags}
-              aiGenerated
-              onSchedule={() => handleSchedule(activity.id)}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Available activities */}
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Todas las Actividades</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {activities.map((activity) => (
-            <ActivityCard
-              key={activity.id}
-              name={activity.name}
-              description={activity.description}
-              duration={activity.durationMinutes}
-              category={activity.category}
-              tags={activity.tags}
-              onSchedule={() => handleSchedule(activity.id)}
-            />
-          ))}
-        </div>
-      </section>
-    </div>
+    </ErrorBoundary>
   );
 }
