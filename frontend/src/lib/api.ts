@@ -67,7 +67,7 @@ apiClient.interceptors.response.use(
 
     // Handle authentication errors
     if (error.response.status === 401) {
-      const errorCode = error.response.data?.code;
+      const errorCode = (error.response.data as { code?: string })?.code;
 
       // Only redirect to login for specific auth errors
       if (

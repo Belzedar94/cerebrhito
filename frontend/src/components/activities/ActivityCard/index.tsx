@@ -8,7 +8,12 @@ interface ActivityCardProps {
   onComplete?: () => Promise<void>;
 }
 
-export default function ActivityCard({ activity }: ActivityCardProps) {
+export default function ActivityCard({
+  activity,
+  status,
+  scheduledFor,
+  onComplete,
+}: ActivityCardProps) {
   return (
     <div>
       <h3>{activity.title}</h3>

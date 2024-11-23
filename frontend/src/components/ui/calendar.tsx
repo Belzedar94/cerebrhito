@@ -7,6 +7,11 @@ interface CalendarProps {
   onSelect?: (date: Date) => void;
 }
 
-export function Calendar({ className }: CalendarProps) {
+export function Calendar({
+  className,
+  mode,
+  selected,
+  onSelect,
+}: CalendarProps) {
   return <div className={className}>{/* TODO: Implement calendar */}</div>;
 }

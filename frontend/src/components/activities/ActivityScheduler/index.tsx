@@ -1,7 +1,8 @@
 import React from 'react';
 
-interface ActivitySchedulerProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ActivitySchedulerProps {
   childId: string;
+  className?: string;
 }
 
 export default function ActivityScheduler({ childId }: ActivitySchedulerProps) {
