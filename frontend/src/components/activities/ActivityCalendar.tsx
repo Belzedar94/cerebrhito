@@ -62,23 +62,15 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
   };
 
   if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return (
-      <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        {error}
-      </div>
-    );
+    return <div className="text-red-500">{error}</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card>
         <CardHeader>
           <CardTitle>Calendar</CardTitle>
@@ -98,22 +90,17 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[500px] pr-4">
-            <div className="space-y-8">
+            <div className="space-y-6">
               <section>
                 <h3 className="font-semibold mb-4">Scheduled Activities</h3>
                 {upcomingActivities.length === 0 ? (
-                  <p className="text-gray-500">No scheduled activities</p>
+                  <p className="text-muted-foreground">No scheduled activities</p>
                 ) : (
                   <div className="space-y-4">
                     {upcomingActivities.map((log) => (
                       <ActivityCard
                         key={log.id}
-                        name={log.activity.name}
-                        description={log.activity.description}
-                        duration={log.activity.durationMinutes}
-                        category={log.activity.category}
-                        tags={log.activity.tags}
-                        aiGenerated={log.activity.aiGenerated}
+                        activity={log.activity}
                         status="pending"
                         scheduledFor={log.scheduledFor}
                         onComplete={() => handleComplete(log.id)}
@@ -123,20 +110,16 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
                 )}
               </section>
               <section>
-                <h3 className="font-semibold mb-4">Completed Activities</h3>
+                <h3 
+className="font-semibold mb-4">Completed Activities</h3>
                 {completedActivities.length === 0 ? (
-                  <p className="text-gray-500">No completed activities</p>
+                  <p className="text-muted-foreground">No completed activities</p>
                 ) : (
                   <div className="space-y-4">
                     {completedActivities.map((log) => (
                       <ActivityCard
                         key={log.id}
-                        name={log.activity.name}
-                        description={log.activity.description}
-                        duration={log.activity.durationMinutes}
-                        category={log.activity.category}
-                        tags={log.activity.tags}
-                        aiGenerated={log.activity.aiGenerated}
+                        activity={log.activity}
                         status="completed"
                         scheduledFor={log.scheduledFor}
                       />
