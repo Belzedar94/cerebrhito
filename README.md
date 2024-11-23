@@ -4,7 +4,6 @@ CerebrHito is an innovative AI-powered platform designed to assist parents and p
 
 ## Key Features
 
-- **AI Visual Analysis System**: Process and analyze photos/videos to track developmental progress
 - **Interactive AI Assistant**: 24/7 multimodal assistant with voice interface powered by Groq LLM and ElevenLabs TTS
 - **Activity Planning System**: Weekly calendar with age-appropriate activities and tracking
 - **Development Tracking**: Personalized timelines, milestone tracking, and progress visualization
@@ -195,7 +194,6 @@ git checkout -b feature/your-feature-name
 - ✅ Interactive AI Assistant
 - ✅ Activity Planning System
 - ✅ Development Tracking
-- ⏳ AI Visual Analysis System (postponed)
 
 ### Implemented Features
 
