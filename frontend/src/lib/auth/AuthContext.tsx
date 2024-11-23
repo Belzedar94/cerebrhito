@@ -1,29 +1,20 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/services/auth';
 
 interface User {
   id: string;
   email: string;
-  fullName: string;
-  role: 'parent' | 'professional';
-  subscriptionType: 'free' | 'premium' | 'enterprise';
+  name: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (data: SignUpData) => Promise<void>;
-  signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-}
-
-interface SignUpData {
-  email: string;
-  password: string;
-  fullName: string;
-  role: 'parent' | 'professional';
+  error: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,139 +22,77 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is logged in on mount
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          }
-          throw new Error('Failed to get user');
-        })
-        .then((data) => {
-          setUser(data.user);
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
+    const initAuth = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const user = await authService.getCurrentUser();
+          setUser(user);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        localStorage.removeItem('token');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const res = await fetch('/api/auth/signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message);
-    }
-
-    const data = await res.json();
-    localStorage.setItem('token', data.token);
-    setUser(data.user);
-    router.push('/dashboard');
-  };
-
-  const signUp = async (data: SignUpData) => {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message);
-    }
-
-    const responseData = await res.json();
-    localStorage.setItem('token', responseData.token);
-    setUser(responseData.user);
-    router.push('/dashboard');
-  };
-
-  const signOut = async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      await fetch('/api/auth/signout', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    }
-    localStorage.removeItem('token');
-    setUser(null);
-    router.push('/');
-  };
-
-  const resetPassword = async (email: string) => {
-    const res = await fetch('/api/auth/reset-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message);
+  const login = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { user, token } = await authService.login(email, password);
+      localStorage.setItem('token', token);
+      setUser(user);
+      router.push('/dashboard');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Login failed');
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const updatePassword = async (currentPassword: string, newPassword: string) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Not authenticated');
+  const register = async (email: string, password: string, name: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { user, token } = await authService.register(email, password, name);
+      localStorage.setItem('token', token);
+      setUser(user);
+      router.push('/dashboard');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Registration failed');
+      throw error;
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const res = await fetch('/api/auth/password', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message);
+  const logout = async () => {
+    try {
+      setLoading(true);
+      await authService.logout();
+      localStorage.removeItem('token');
+      setUser(null);
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        signIn,
-        signUp,
-        signOut,
-        resetPassword,
-        updatePassword,
-      }}
+      value={{ user, loading, error, login, register, logout }}
     >
       {children}
     </AuthContext.Provider>
