@@ -152,6 +152,8 @@
     "curly": ["error", "all"],
     "no-param-reassign": "off",
     "no-useless-escape": "off",
+    "no-case-declarations": "off",
+    "jsx-a11y/label-has-associated-control": "off",
     "padding-line-between-statements": [
       "error",
       { "blankLine": "always", "prev": "*", "next": "return" },
