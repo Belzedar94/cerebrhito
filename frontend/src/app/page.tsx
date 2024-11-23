@@ -6,6 +6,9 @@ import { ActivityScheduler } from '@/components/activities/ActivityScheduler';
 import { AIAssistant } from '@/components/ai-assistant/AIAssistant';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function HomePage() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
@@ -27,38 +30,45 @@ export default function HomePage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold mb-8">Welcome to CerebrHito</h1>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-8">Welcome to CerebrHito</h1>
           
-          {/* Child selector */}
-          <div className="mb-8">
-            <label htmlFor="child" className="block text-sm font-medium text-gray-700">
-              Select a child
-            </label>
-            <select
-              id="child"
-              value={selectedChild || ''}
-              onChange={(e) => setSelectedChild(e.target.value || null)}
-              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-            >
-              <option value="">Select a child</option>
-              {/* TODO: Add children from user profile */}
-              <option value="1">Juan (2 years)</option>
-              <option value="2">María (1 year)</option>
-            </select>
-          </div>
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Select a child</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select onValueChange={(value) => setSelectedChild(value)} value={selectedChild || undefined}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a child" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Juan (2 years)</SelectItem>
+                  <SelectItem value="2">María (1 year)</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
 
           {selectedChild && (
             <div className="grid gap-8 md:grid-cols-2">
-              <div>
-                <h2 className="text-2xl font-semibold mb-4">Activity Scheduler</h2>
-                <ActivityScheduler childId={selectedChild} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold mb-4">AI Assistant</h2>
-                <AIAssistant childId={selectedChild} />
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Activity Scheduler</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ActivityScheduler childId={selectedChild} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI Assistant</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AIAssistant childId={selectedChild} />
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
@@ -66,3 +76,4 @@ export default function HomePage() {
     </ErrorBoundary>
   );
 }
+
