@@ -134,6 +134,33 @@ npm run dev
 
 ## Development Guide
 
+### Testing
+
+The project uses Jest for testing. The following test suites are available:
+
+- Unit tests: Test individual functions and components
+- Integration tests: Test API endpoints and service interactions
+- End-to-end tests: Test complete user flows (coming soon)
+
+To run the tests:
+
+```bash
+# Run all tests
+cd backend && npm run test:all
+
+# Run specific test suites
+npm run test           # Run unit tests
+npm run test:async    # Test async utilities
+npm run test:errors   # Test error handling
+npm run test:validation # Test input validation
+```
+
+Test coverage reports are generated in the `coverage` directory. The project aims for:
+- 80% branch coverage
+- 80% function coverage
+- 80% line coverage
+- 80% statement coverage
+
 ### Authentication Flow
 
 The authentication system uses a combination of Supabase Auth and JWT tokens:
