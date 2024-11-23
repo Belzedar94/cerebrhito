@@ -1,0 +1,10 @@
+dist/
+node_modules/
+coverage/
+*.log
+*.lock
+package-lock.json
+.env*
+.git
+.vscode
+.idea

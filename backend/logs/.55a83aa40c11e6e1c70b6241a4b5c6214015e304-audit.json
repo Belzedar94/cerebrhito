@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 7
+    },
+    "auditLog": "/workspace/cerebrhito/backend/logs/.55a83aa40c11e6e1c70b6241a4b5c6214015e304-audit.json",
+    "files": [
+        {
+            "date": 1732349712518,
+            "name": "/workspace/cerebrhito/backend/logs/http-2024-11-23.log",
+            "hash": "dbd30b0a6678f4b9feb37c688db60dd80965752f6ff22231582e87d333868f24"
+        }
+    ],
+    "hashType": "sha256"
+}

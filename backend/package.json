@@ -8,8 +8,18 @@
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "test": "jest",
-    "lint": "eslint src/**/*.ts",
-    "db:migrate": "node scripts/migrate.js"
+    "test:validation": "ts-node scripts/test-validation.ts",
+    "test:errors": "ts-node scripts/test-error-handling.ts",
+    "test:sanitization": "ts-node scripts/test-sanitization.ts",
+    "test:async": "ts-node scripts/test-async.ts",
+    "test:all": "npm run test && npm run test:validation && npm run test:errors && npm run test:sanitization && npm run test:async",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "db:migrate": "node scripts/migrate.js",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write 'src/**/*.{ts,json}'",
+    "format:check": "prettier --check 'src/**/*.{ts,json}'",
+    "validate": "npm run typecheck && npm run lint && npm run format:check && npm run test:all"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.3",
@@ -17,7 +27,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.4",
     "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
+    "express-rate-limit": "^7.4.1",
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -25,6 +35,7 @@
     "redis": "^4.6.13",
     "sanitize-html": "^2.12.1",
     "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -41,6 +52,7 @@
     "eslint": "^8.56.0",
     "jest": "^29.7.0",
     "nodemon": "^3.0.3",
+    "prettier": "^3.3.3",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
