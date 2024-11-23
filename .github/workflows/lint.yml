@@ -1,0 +1,48 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd frontend && npm ci
+          cd ../backend && npm ci
+
+      - name: Install shfmt
+        run: |
+          curl -sS https://webinstall.dev/shfmt | bash
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Check code formatting
+        run: |
+          npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,scss,md,yaml,yml}"
+          find . -name "*.sql" -exec npx sql-formatter -c {} \;
+          find . -name "*.sh" -exec shfmt -d {} \;
+
+      - name: Run ESLint
+        run: |
+          npx eslint "**/*.{ts,tsx,js,jsx}"
+
+      - name: Run type check
+        run: |
+          cd frontend && npm run type-check
+          cd ../backend && npm run type-check
