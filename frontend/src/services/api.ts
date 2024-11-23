@@ -1,5 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '@/store';
+import type {
+  Activity,
+  ActivityLog,
+  ScheduleActivityData,
+  UpdateActivityLogData,
+} from '@/types/activity';
+import type { Milestone } from '@/types/milestone';
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({

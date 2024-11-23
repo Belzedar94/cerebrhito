@@ -4,7 +4,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useActivities } from '@/hooks/useActivities';
-import { ActivityCard } from './ActivityCard';
+import ActivityCard from './ActivityCard';
 
 interface ActivityCalendarProps {
   childId: string;

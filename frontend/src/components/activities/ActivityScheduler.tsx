@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { ActivityScheduler } from '@/components/activities/ActivityScheduler';
+import ActivityScheduler from '@/components/activities/ActivityScheduler';
 import { AIAssistant } from '@/components/ai-assistant/AIAssistant';
 import { useAuth } from '@/lib/auth/AuthContext';
 

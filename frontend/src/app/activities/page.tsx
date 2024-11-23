@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ActivityCalendar } from '@/components/activities/ActivityCalendar';
-import { ActivityScheduler } from '@/components/activities/ActivityScheduler';
+import ActivityScheduler from '@/components/activities/ActivityScheduler';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
