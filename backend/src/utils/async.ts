@@ -380,55 +380,51 @@ export function withBatch<T, R>(
 ): (item: T) => Promise<R> {
   const { maxBatchSize = 10, maxWaitMs = 100 } = options;
   let batch: T[] = [];
-  let pendingPromise: Promise<R[]> | null = null;
+  let currentPromise: Promise<R[]> | null = null;
   let timeout: NodeJS.Timeout | null = null;
+  let itemPromises: Map<number, { resolve: (value: R) => void; reject: (error: Error) => void }> = new Map();
 
   const processBatch = async () => {
-    if (batch.length === 0) return [];
+    if (batch.length === 0) return;
 
     const items = batch.slice();
+    const promises = Array.from(itemPromises.entries());
     batch = [];
     timeout = null;
-    pendingPromise = null;
+    currentPromise = null;
+    itemPromises = new Map();
 
-    return fn(items);
+    try {
+      const results = await fn(items);
+      promises.forEach(([index, { resolve }]) => {
+        resolve(results[index]);
+      });
+    } catch (error) {
+      promises.forEach(([_, { reject }]) => {
+        reject(error as Error);
+      });
+    }
   };
 
   return async (item: T) => {
+    const itemIndex = batch.length;
     batch.push(item);
-    const itemIndex = batch.length - 1;
+
+    const promise = new Promise<R>((resolve, reject) => {
+      itemPromises.set(itemIndex, { resolve, reject });
+    });
 
     if (batch.length >= maxBatchSize) {
       if (timeout) {
         clearTimeout(timeout);
         timeout = null;
       }
-      const results = await processBatch();
-      return results[itemIndex];
+      processBatch();
+    } else if (!timeout) {
+      timeout = setTimeout(processBatch, maxWaitMs);
     }
 
-    if (!timeout) {
-      timeout = setTimeout(async () => {
-        const results = await processBatch();
-        return results[itemIndex];
-      }, maxWaitMs);
-    }
-
-    if (!pendingPromise) {
-      pendingPromise = new Promise<R[]>((resolve, reject) => {
-        timeout = setTimeout(async () => {
-          try {
-            const results = await processBatch();
-            resolve(results);
-          } catch (error) {
-            reject(error);
-          }
-        }, maxWaitMs);
-      });
-    }
-
-    const results = await pendingPromise;
-    return results[itemIndex];
+    return promise;
   };
 }
 
