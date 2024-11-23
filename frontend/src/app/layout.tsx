@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { StoreProvider } from '@/providers/StoreProvider';
-import { ThemeProvider } from '@/providers/ThemeProvider';
-import { AuthProvider } from '@/providers/AuthProvider';
+import { Toaster } from '@/components/ui/toaster';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { AuthProvider } from '@/lib/auth/AuthContext';
 import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -20,19 +21,21 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
-        <StoreProvider>
-          <AuthProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <StoreProvider>
+            <AuthProvider>
               {children}
-            </ThemeProvider>
-          </AuthProvider>
-        </StoreProvider>
+              <Toaster />
+            </AuthProvider>
+          </StoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+

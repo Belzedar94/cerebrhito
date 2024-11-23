@@ -2,39 +2,31 @@
 
 import { useAuth } from '@/lib/auth/AuthContext';
 import { AIAssistant } from '@/components/ai-assistant/AIAssistant';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import MainLayout from '@/components/layout/MainLayout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AIAssistantPage() {
   const { user, loading } = useAuth();
-  const router = useRouter();
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-    }
-  }, [user, loading, router]);
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   if (!user) {
-    return null;
+    return <div>Please sign in to access this page.</div>;
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      <main className="flex-1">
-        <div className="mx-auto h-full max-w-4xl">
+    <MainLayout>
+      <Card className="h-[calc(100vh-8rem)]">
+        <CardHeader>
+          <CardTitle>AI Assistant</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[calc(100%-5rem)]">
           <AIAssistant />
-        </div>
-      </main>
-    </div>
+        </CardContent>
+      </Card>
+    </MainLayout>
   );
 }
+

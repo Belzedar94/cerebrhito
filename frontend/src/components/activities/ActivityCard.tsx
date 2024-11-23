@@ -1,103 +1,62 @@
-interface ActivityCardProps {
+import React from 'react';
+import { Clock, Tag, Star } from 'lucide-react';
+
+interface Activity {
+  id: string;
   name: string;
   description: string;
-  duration: number;
+  durationMinutes: number;
   category: string;
   tags: string[];
-  aiGenerated?: boolean;
-  onSchedule?: () => void;
-  onComplete?: () => void;
-  status?: 'pending' | 'completed' | 'skipped';
-  scheduledFor?: string;
+  aiGenerated: boolean;
 }
 
-export function ActivityCard({
-  name,
-  description,
-  duration,
-  category,
-  tags,
-  aiGenerated,
-  onSchedule,
-  onComplete,
-  status,
-  scheduledFor,
-}: ActivityCardProps) {
+interface ActivityCardProps {
+  activity: Activity;
+  onSchedule: (id: string) => void;
+}
+
+const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onSchedule }) => {
   return (
-    <div className="rounded-lg border bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">{name}</h3>
-          {aiGenerated && (
-            <span className="mb-2 inline-block rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800">
-              AI Sugerido
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="p-4">
+        <h3 className="text-lg font-semibold mb-2 text-gray-800">{activity.name}</h3>
+        <p className="text-sm text-gray-600 mb-4">{activity.description}</p>
+        <div className="flex items-center text-sm text-gray-500 mb-2">
+          <Clock className="w-4 h-4 mr-2" />
+          <span>{activity.durationMinutes} minutes</span>
+        </div>
+        <div className="flex items-center text-sm text-gray-500 mb-4">
+          <Tag className="w-4 h-4 mr-2" />
+          <span>{activity.category}</span>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {activity.tags.map((tag, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full"
+            >
+              {tag}
             </span>
-          )}
+          ))}
         </div>
-        {status && (
-          <span
-            className={`rounded-full px-2 py-1 text-xs ${
-              status === 'completed'
-                ? 'bg-green-100 text-green-800'
-                : status === 'skipped'
-                ? 'bg-red-100 text-red-800'
-                : 'bg-yellow-100 text-yellow-800'
-            }`}
-          >
-            {status === 'completed'
-              ? 'Completado'
-              : status === 'skipped'
-              ? 'Omitido'
-              : 'Pendiente'}
-          </span>
+        {activity.aiGenerated && (
+          <div className="flex items-center text-sm text-purple-600 mb-4">
+            <Star className="w-4 h-4 mr-2" />
+            <span>AI Generated</span>
+          </div>
         )}
+        <button
+          onClick={() => onSchedule(activity.id)}
+          className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+          aria-label={`Schedule ${activity.name}`}
+        >
+          Schedule Activity
+        </button>
       </div>
-
-      <p className="mt-2 text-sm text-gray-600">{description}</p>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
-          {duration} minutos
-        </span>
-        <span className="rounded-full bg-purple-100 px-2 py-1 text-xs text-purple-800">
-          {category}
-        </span>
-        {tags.map((tag) => (
-          <span
-            key={tag}
-            className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      {scheduledFor && (
-        <p className="mt-4 text-sm text-gray-600">
-          Programado para: {new Date(scheduledFor).toLocaleString()}
-        </p>
-      )}
-
-      {(onSchedule || onComplete) && (
-        <div className="mt-4 flex gap-2">
-          {onSchedule && (
-            <button
-              onClick={onSchedule}
-              className="rounded bg-primary px-4 py-2 text-sm text-white hover:bg-primary-dark"
-            >
-              Programar
-            </button>
-          )}
-          {onComplete && (
-            <button
-              onClick={onComplete}
-              className="rounded bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
-            >
-              Completar
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
-}
+};
+
+export default ActivityCard;
+

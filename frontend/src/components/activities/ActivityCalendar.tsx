@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useActivities } from '@/hooks/useActivities';
 import { ActivityCard } from './ActivityCard';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ActivityCalendarProps {
   childId: string;
 }
 
 export function ActivityCalendar({ childId }: ActivityCalendarProps) {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [upcomingActivities, setUpcomingActivities] = useState<any[]>([]);
   const [completedActivities, setCompletedActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +23,6 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
     updateActivityLog,
   } = useActivities();
 
-  // Load activities
   useEffect(() => {
     const loadActivities = async () => {
       try {
@@ -26,8 +30,8 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
         setLoading(true);
 
         const [upcoming, completed] = await Promise.all([
-          getUpcomingActivities(childId),
-          getCompletedActivities(childId),
+          getUpcomingActivities(childId, selectedDate),
+          getCompletedActivities(childId, selectedDate),
         ]);
 
         setUpcomingActivities(upcoming);
@@ -40,7 +44,7 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
     };
 
     loadActivities();
-  }, [childId, getUpcomingActivities, getCompletedActivities]);
+  }, [childId, selectedDate, getUpcomingActivities, getCompletedActivities]);
 
   const handleComplete = async (logId: string) => {
     try {
@@ -50,7 +54,6 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
         completedAt: new Date().toISOString(),
       });
 
-      // Update lists
       setUpcomingActivities(prev => prev.filter(log => log.id !== logId));
       setCompletedActivities(prev => [...prev, updatedLog]);
     } catch (err) {
@@ -59,71 +62,76 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
   };
 
   if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return (
-      <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        {error}
-      </div>
-    );
+    return <div className="text-red-500">{error}</div>;
   }
 
   return (
-    <div className="space-y-8">
-      {/* Upcoming activities */}
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Actividades Programadas</h2>
-        {upcomingActivities.length === 0 ? (
-          <p className="text-gray-500">No hay actividades programadas</p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {upcomingActivities.map((log) => (
-              <ActivityCard
-                key={log.id}
-                name={log.activity.name}
-                description={log.activity.description}
-                duration={log.activity.durationMinutes}
-                category={log.activity.category}
-                tags={log.activity.tags}
-                aiGenerated={log.activity.aiGenerated}
-                status="pending"
-                scheduledFor={log.scheduledFor}
-                onComplete={() => handleComplete(log.id)}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Completed activities */}
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Actividades Completadas</h2>
-        {completedActivities.length === 0 ? (
-          <p className="text-gray-500">No hay actividades completadas</p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {completedActivities.map((log) => (
-              <ActivityCard
-                key={log.id}
-                name={log.activity.name}
-                description={log.activity.description}
-                duration={log.activity.durationMinutes}
-                category={log.activity.category}
-                tags={log.activity.tags}
-                aiGenerated={log.activity.aiGenerated}
-                status="completed"
-                scheduledFor={log.scheduledFor}
-              />
-            ))}
-          </div>
-        )}
-      </section>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Calendar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            className="rounded-md border"
+          />
+        </CardContent>
+      </Card>
+      <Card className="md:col-span-2">
+        <CardHeader>
+          <CardTitle>Activities for {selectedDate?.toLocaleDateString()}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[500px] pr-4">
+            <div className="space-y-6">
+              <section>
+                <h3 className="font-semibold mb-4">Scheduled Activities</h3>
+                {upcomingActivities.length === 0 ? (
+                  <p className="text-muted-foreground">No scheduled activities</p>
+                ) : (
+                  <div className="space-y-4">
+                    {upcomingActivities.map((log) => (
+                      <ActivityCard
+                        key={log.id}
+                        activity={log.activity}
+                        status="pending"
+                        scheduledFor={log.scheduledFor}
+                        onComplete={() => handleComplete(log.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+              <section>
+                <h3 
+className="font-semibold mb-4">Completed Activities</h3>
+                {completedActivities.length === 0 ? (
+                  <p className="text-muted-foreground">No completed activities</p>
+                ) : (
+                  <div className="space-y-4">
+                    {completedActivities.map((log) => (
+                      <ActivityCard
+                        key={log.id}
+                        activity={log.activity}
+                        status="completed"
+                        scheduledFor={log.scheduledFor}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
