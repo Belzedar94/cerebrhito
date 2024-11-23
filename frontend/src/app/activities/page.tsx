@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { ActivityCalendar } from '@/components/activities/ActivityCalendar';
 import { ActivityScheduler } from '@/components/activities/ActivityScheduler';
-import { useRouter } from 'next/navigation';
+import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,27 +13,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function ActivitiesPage() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const { user, loading } = useAuth();
-  const router = useRouter();
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   if (!user) {
-    router.push('/signin');
-    return null;
+    return <div>Please sign in to access this page.</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Development Activities</h1>
-        
-        <Card className="mb-8">
+    <MainLayout>
+      <div className="space-y-6">
+        <Card>
           <CardHeader>
             <CardTitle>Select a child</CardTitle>
           </CardHeader>
@@ -79,7 +71,7 @@ export default function ActivitiesPage() {
           </Tabs>
         )}
       </div>
-    </div>
+    </MainLayout>
   );
 }
 
