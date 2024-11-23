@@ -18,6 +18,7 @@ class AuthService {
         email,
         password,
       });
+
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -35,6 +36,7 @@ class AuthService {
         password,
         name,
       });
+
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -44,6 +46,7 @@ class AuthService {
   async getCurrentUser(): Promise<User> {
     try {
       const response = await apiClient.get<User>('/auth/me');
+
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -61,8 +64,10 @@ class AuthService {
   private handleError(error: any): Error {
     if (error.response) {
       const message = error.response.data?.message || 'An error occurred';
+
       return new Error(message);
     }
+
     return new Error('Network error');
   }
 }

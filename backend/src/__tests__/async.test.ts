@@ -7,7 +7,7 @@ import {
   withDebounce,
   withThrottle,
   withBatch,
-  withMemo
+  withMemo,
 } from '../utils/async';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -18,9 +18,11 @@ describe('Async Utils', () => {
       let attempts = 0;
       const operation = async () => {
         attempts++;
+
         if (attempts < 3) {
           throw new Error('Operation failed');
         }
+
         return 'success';
       };
 
@@ -35,9 +37,7 @@ describe('Async Utils', () => {
         throw new Error('Operation failed');
       };
 
-      await expect(withRetry(operation, { maxAttempts: 2 })).rejects.toThrow(
-        'Operation failed'
-      );
+      await expect(withRetry(operation, { maxAttempts: 2 })).rejects.toThrow('Operation failed');
     });
 
     it('should respect retry options', async () => {
@@ -47,12 +47,13 @@ describe('Async Utils', () => {
       };
 
       const start = Date.now();
+
       try {
         await withRetry(operation, {
           maxAttempts: 2,
           initialDelay: 100,
           backoffFactor: 2,
-          maxDelay: 1000
+          maxDelay: 1000,
         });
       } catch {
         lastDelay = Date.now() - start;
@@ -67,7 +68,7 @@ describe('Async Utils', () => {
       const promises = [
         Promise.resolve('success1'),
         Promise.reject(new Error('error1')),
-        Promise.resolve('success2')
+        Promise.resolve('success2'),
       ];
 
       const result = await withPartialSuccess(promises);
@@ -84,19 +85,19 @@ describe('Async Utils', () => {
       const promises = [
         Promise.resolve('success1'),
         Promise.reject(new Error('error1')),
-        Promise.reject(new Error('error2'))
+        Promise.reject(new Error('error2')),
       ];
 
-      await expect(
-        withPartialSuccess(promises, { requireMinSuccess: 3 })
-      ).rejects.toThrow('Required minimum of 3 successful operations');
+      await expect(withPartialSuccess(promises, { requireMinSuccess: 3 })).rejects.toThrow(
+        'Required minimum of 3 successful operations'
+      );
     });
 
     it('should handle timeouts', async () => {
       const promises = [
         Promise.resolve('success1'),
         new Promise(resolve => setTimeout(resolve, 200, 'success2')),
-        Promise.resolve('success3')
+        Promise.resolve('success3'),
       ];
 
       const result = await withPartialSuccess(promises, { timeoutMs: 100 });
@@ -110,33 +111,35 @@ describe('Async Utils', () => {
     it('should complete within timeout', async () => {
       const operation = async () => {
         await sleep(50);
+
         return 'success';
       };
 
       const result = await withTimeout(operation, 100);
+
       expect(result).toBe('success');
     });
 
     it('should fail on timeout', async () => {
       const operation = async () => {
         await sleep(200);
+
         return 'success';
       };
 
-      await expect(withTimeout(operation, 100)).rejects.toThrow(
-        'Operation timed out'
-      );
+      await expect(withTimeout(operation, 100)).rejects.toThrow('Operation timed out');
     });
 
     it('should use custom timeout error', async () => {
       const operation = async () => {
         await sleep(200);
+
         return 'success';
       };
 
-      await expect(
-        withTimeout(operation, 100, new Error('Custom timeout'))
-      ).rejects.toThrow('Custom timeout');
+      await expect(withTimeout(operation, 100, new Error('Custom timeout'))).rejects.toThrow(
+        'Custom timeout'
+      );
     });
   });
 
@@ -144,11 +147,16 @@ describe('Async Utils', () => {
     it('should handle cancellation', async () => {
       const operation = async (signal: AbortSignal) => {
         await sleep(100);
-        if (signal.aborted) throw new Error('Cancelled');
+
+        if (signal.aborted) {
+          throw new Error('Cancelled');
+        }
+
         return 'success';
       };
 
       const { promise, cancel } = withCancellation(operation);
+
       setTimeout(() => cancel('User cancelled'), 50);
 
       await expect(promise).rejects.toThrow('Operation cancelled: User cancelled');
@@ -157,6 +165,7 @@ describe('Async Utils', () => {
     it('should complete if not cancelled', async () => {
       const operation = async (signal: AbortSignal) => {
         await sleep(50);
+
         return 'success';
       };
 
@@ -174,7 +183,9 @@ describe('Async Utils', () => {
       const operation = withRateLimit(
         async () => {
           const now = Date.now() - start;
+
           results.push(now);
+
           return now;
         },
         { maxCalls: 2, windowMs: 100, queueLimit: 10 }
@@ -191,10 +202,11 @@ describe('Async Utils', () => {
     });
 
     it('should fail when queue is full', async () => {
-      const operation = withRateLimit(
-        async () => 'success',
-        { maxCalls: 1, windowMs: 100, queueLimit: 1 }
-      );
+      const operation = withRateLimit(async () => 'success', {
+        maxCalls: 1,
+        windowMs: 100,
+        queueLimit: 1,
+      });
 
       // Fill the queue
       operation();
@@ -207,13 +219,11 @@ describe('Async Utils', () => {
   describe('withDebounce', () => {
     it('should debounce calls', async () => {
       let callCount = 0;
-      const operation = withDebounce(
-        async () => {
-          callCount++;
-          return callCount;
-        },
-        50
-      );
+      const operation = withDebounce(async () => {
+        callCount++;
+
+        return callCount;
+      }, 50);
 
       // Make multiple calls in quick succession
       operation();
@@ -229,6 +239,7 @@ describe('Async Utils', () => {
       const operation = withDebounce(
         async () => {
           callCount++;
+
           return callCount;
         },
         200,
@@ -254,7 +265,9 @@ describe('Async Utils', () => {
       const operation = withThrottle(
         async () => {
           const now = Date.now() - start;
+
           results.push(now);
+
           return now;
         },
         100,
@@ -275,6 +288,7 @@ describe('Async Utils', () => {
       const operation = withThrottle(
         async () => {
           results.push(Date.now());
+
           return results.length;
         },
         100,
@@ -297,6 +311,7 @@ describe('Async Utils', () => {
       const batchFn = withBatch(
         async (items: number[]) => {
           batchCalls.push(items);
+
           return items.map(i => i * 2);
         },
         { maxBatchSize: 3, maxWaitMs: 50 }
@@ -307,6 +322,7 @@ describe('Async Utils', () => {
       const p2 = batchFn(2);
       const p3 = batchFn(3);
       const p4 = batchFn(4);
+
       results.push(await p1);
       results.push(await p2);
       results.push(await p3);
@@ -322,6 +338,7 @@ describe('Async Utils', () => {
       const batchFn = withBatch(
         async (items: number[]) => {
           batchCalls.push(items);
+
           return items.map(i => i * 2);
         },
         { maxBatchSize: 10, maxWaitMs: 50 }
@@ -342,6 +359,7 @@ describe('Async Utils', () => {
       const operation = withMemo(
         async (n: number) => {
           computeCount++;
+
           return n * 2;
         },
         { ttlMs: 100 }
@@ -360,6 +378,7 @@ describe('Async Utils', () => {
       const operation = withMemo(
         async (n: number) => {
           computeCount++;
+
           return n * 2;
         },
         { ttlMs: 50 }
@@ -378,6 +397,7 @@ describe('Async Utils', () => {
       const operation = withMemo(
         async (n: number) => {
           computeCount++;
+
           return n * 2;
         },
         { maxSize: 2 }
@@ -397,10 +417,11 @@ describe('Async Utils', () => {
       const operation = withMemo(
         async (obj: { id: number; data: any }) => {
           computeCount++;
+
           return obj.id * 2;
         },
         {
-          keyFn: obj => String(obj.id)
+          keyFn: obj => String(obj.id),
         }
       );
 

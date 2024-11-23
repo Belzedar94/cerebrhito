@@ -1,5 +1,6 @@
-import { useForm, UseFormProps, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { FieldValues, UseFormProps } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -24,20 +25,21 @@ export function useFormValidation<T extends FieldValues>({
 
   const handleSubmit = form.handleSubmit(
     // Success handler
-    async (data) => {
+    async data => {
       try {
         await onSuccess?.(data);
       } catch (error) {
         console.error('Form submission error:', error);
         toast({
           title: 'Error',
-          description: error instanceof Error ? error.message : 'An error occurred',
-          variant: 'destructive'
+          description:
+            error instanceof Error ? error.message : 'An error occurred',
+          variant: 'destructive',
         });
       }
     },
     // Error handler
-    (errors) => {
+    errors => {
       const zodError = new z.ZodError(
         Object.entries(errors).map(([path, error]) => ({
           code: 'custom',
@@ -50,11 +52,12 @@ export function useFormValidation<T extends FieldValues>({
 
       // Show toast with first error
       const firstError = Object.values(errors)[0];
+
       if (firstError) {
         toast({
           title: 'Validation Error',
           description: firstError.message,
-          variant: 'destructive'
+          variant: 'destructive',
         });
       }
     }

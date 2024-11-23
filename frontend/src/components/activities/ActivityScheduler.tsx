@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
 import React, { useState } from 'react';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useRouter } from 'next/navigation';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ActivityScheduler } from '@/components/activities/ActivityScheduler';
 import { AIAssistant } from '@/components/ai-assistant/AIAssistant';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function HomePage() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
@@ -22,6 +22,7 @@ export default function HomePage() {
 
   if (!user) {
     router.push('/signin');
+
     return null;
   }
 
@@ -30,16 +31,19 @@ export default function HomePage() {
       <div className="min-h-screen bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold mb-8">Welcome to CerebrHito</h1>
-          
+
           {/* Child selector */}
           <div className="mb-8">
-            <label htmlFor="child" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="child"
+              className="block text-sm font-medium text-gray-700"
+            >
               Select a child
             </label>
             <select
               id="child"
               value={selectedChild || ''}
-              onChange={(e) => setSelectedChild(e.target.value || null)}
+              onChange={e => setSelectedChild(e.target.value || null)}
               className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
             >
               <option value="">Select a child</option>
@@ -52,7 +56,9 @@ export default function HomePage() {
           {selectedChild && (
             <div className="grid gap-8 md:grid-cols-2">
               <div>
-                <h2 className="text-2xl font-semibold mb-4">Activity Scheduler</h2>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Activity Scheduler
+                </h2>
                 <ActivityScheduler childId={selectedChild} />
               </div>
               <div>

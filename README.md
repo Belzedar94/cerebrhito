@@ -1,19 +1,25 @@
 # CerebrHito - AI-Powered Child Development Assistant
 
-CerebrHito is an innovative AI-powered platform designed to assist parents and professionals in tracking and supporting child development. The application combines advanced AI technologies with expert knowledge in child neuropsychology to provide personalized guidance and support.
+CerebrHito is an innovative AI-powered platform designed to assist parents and
+professionals in tracking and supporting child development. The application
+combines advanced AI technologies with expert knowledge in child neuropsychology
+to provide personalized guidance and support.
 
 ## Key Features
 
-- **Interactive AI Assistant**: 24/7 multimodal assistant with voice interface powered by Groq LLM and ElevenLabs TTS
-- **Activity Planning System**: Weekly calendar with age-appropriate activities and tracking
-- **Development Tracking**: Personalized timelines, milestone tracking, and progress visualization
+- **Interactive AI Assistant**: 24/7 multimodal assistant with voice interface
+  powered by Groq LLM and ElevenLabs TTS
+- **Activity Planning System**: Weekly calendar with age-appropriate activities
+  and tracking
+- **Development Tracking**: Personalized timelines, milestone tracking, and
+  progress visualization
 
 ## Technology Stack
 
 - **Frontend**: React.js, Next.js, TypeScript, TailwindCSS
 - **Backend**: Node.js, Express.js, TypeScript
 - **Database**: Supabase (PostgreSQL + Vector embeddings)
-- **AI Integration**: 
+- **AI Integration**:
   - Groq LLM (llama-3.1-70b-versatile)
   - ElevenLabs TTS (Eleven_turbo_v2_5)
 - **Authentication**: JWT + Supabase Auth
@@ -66,6 +72,7 @@ frontend/
 ### Environment Setup
 
 1. Backend (.env):
+
 ```bash
 PORT=3001
 NODE_ENV=development
@@ -85,6 +92,7 @@ CORS_ORIGIN=http://localhost:3000
 ```
 
 2. Frontend (.env.local):
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:3001
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -94,24 +102,28 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/cerebrhito.git
 cd cerebrhito
 ```
 
 2. Install backend dependencies:
+
 ```bash
 cd backend
 npm install
 ```
 
 3. Install frontend dependencies:
+
 ```bash
 cd frontend
 npm install
 ```
 
 4. Run database migrations:
+
 ```bash
 cd backend
 npm run db:migrate
@@ -120,12 +132,14 @@ npm run db:migrate
 5. Start the development servers:
 
 Backend:
+
 ```bash
 cd backend
 npm run dev
 ```
 
 Frontend:
+
 ```bash
 cd frontend
 npm run dev
@@ -154,7 +168,9 @@ npm run test:errors   # Test error handling
 npm run test:validation # Test input validation
 ```
 
-Test coverage reports are generated in the `coverage` directory. The project aims for:
+Test coverage reports are generated in the `coverage` directory. The project
+aims for:
+
 - 80% branch coverage
 - 80% function coverage
 - 80% line coverage
@@ -171,6 +187,7 @@ The authentication system uses a combination of Supabase Auth and JWT tokens:
 5. Protected routes/requests include token in Authorization header
 
 Key files:
+
 - `backend/src/services/auth.ts`: Core authentication logic
 - `backend/src/middleware/auth.ts`: Route protection middleware
 - `frontend/src/lib/auth/AuthContext.tsx`: Auth state management
@@ -193,17 +210,20 @@ See `backend/src/db/migrations/00001_initial_schema.sql` for complete schema.
 ### Adding New Features
 
 1. Create a new branch:
+
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
 2. Implement backend components:
+
    - Add routes in `backend/src/routes/`
    - Create controllers in `backend/src/controllers/`
    - Add business logic in `backend/src/services/`
    - Define types in `backend/src/types/`
 
 3. Implement frontend components:
+
    - Create pages in `frontend/src/app/`
    - Add components in `frontend/src/components/`
    - Define types in `frontend/src/types/`
@@ -225,6 +245,7 @@ git checkout -b feature/your-feature-name
 ### Implemented Features
 
 #### Interactive AI Assistant
+
 - Multimodal interface with text and voice
 - Powered by Groq LLM (llama-3.1-70b-versatile)
 - Voice synthesis with ElevenLabs TTS
@@ -233,6 +254,7 @@ git checkout -b feature/your-feature-name
 - Empathetic and professional communication
 
 #### Activity Planning System
+
 - Age-appropriate activity suggestions
 - AI-generated personalized activities
 - Activity scheduling and reminders
@@ -242,6 +264,7 @@ git checkout -b feature/your-feature-name
 - AI feedback on completed activities
 
 #### Development Tracking
+
 - Milestone tracking and achievement
 - Development progress statistics
 - Category-based progress tracking
@@ -252,4 +275,5 @@ git checkout -b feature/your-feature-name
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for
+details.

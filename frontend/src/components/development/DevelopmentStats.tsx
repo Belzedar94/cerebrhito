@@ -12,7 +12,10 @@ interface DevelopmentStatsProps {
   }[];
 }
 
-export function DevelopmentStats({ overall, categories }: DevelopmentStatsProps) {
+export function DevelopmentStats({
+  overall,
+  categories,
+}: DevelopmentStatsProps) {
   return (
     <div className="space-y-6">
       {/* Overall progress */}
@@ -20,7 +23,9 @@ export function DevelopmentStats({ overall, categories }: DevelopmentStatsProps)
         <h3 className="text-lg font-semibold">Progreso General</h3>
         <div className="mt-4">
           <div className="flex items-center justify-between text-sm">
-            <span>{overall.achieved} de {overall.total} hitos logrados</span>
+            <span>
+              {overall.achieved} de {overall.total} hitos logrados
+            </span>
             <span className="font-medium">{overall.percentage}%</span>
           </div>
           <div className="mt-2 h-2 w-full rounded-full bg-gray-200">
@@ -36,7 +41,7 @@ export function DevelopmentStats({ overall, categories }: DevelopmentStatsProps)
       <div className="rounded-lg border bg-white p-6">
         <h3 className="text-lg font-semibold">Progreso por Categoría</h3>
         <div className="mt-4 space-y-4">
-          {categories.map((category) => (
+          {categories.map(category => (
             <div key={category.category}>
               <div className="flex items-center justify-between text-sm">
                 <span>{category.category}</span>

@@ -1,12 +1,18 @@
-'use client'
+'use client';
 
 import React from 'react';
-import { useAuth } from '@/lib/auth/AuthContext';
 import { ActivityScheduler } from '@/components/activities/ActivityScheduler';
 import { AIAssistant } from '@/components/ai-assistant/AIAssistant';
 import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function HomePage() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
@@ -28,7 +34,10 @@ export default function HomePage() {
             <CardTitle>Welcome back, {user.fullName}!</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Here's an overview of your child's development and upcoming activities.</p>
+            <p>
+              Here's an overview of your child's development and upcoming
+              activities.
+            </p>
           </CardContent>
         </Card>
 
@@ -37,7 +46,10 @@ export default function HomePage() {
             <CardTitle>Select a child</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select onValueChange={(value) => setSelectedChild(value)} value={selectedChild || undefined}>
+            <Select
+              onValueChange={value => setSelectedChild(value)}
+              value={selectedChild || undefined}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a child" />
               </SelectTrigger>
@@ -73,4 +85,3 @@ export default function HomePage() {
     </MainLayout>
   );
 }
-

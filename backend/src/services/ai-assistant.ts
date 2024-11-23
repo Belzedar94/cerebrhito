@@ -1,6 +1,6 @@
 import { DatabaseService } from './database';
 import { supabase } from '../config/supabase';
-import { AIChatHistory } from '../types/database';
+import type { AIChatHistory } from '../types/database';
 
 // Types for Groq API
 interface GroqMessage {
@@ -88,7 +88,11 @@ Remember: You are a supportive guide, not a replacement for healthcare professio
    * Get relevant conversation history based on the current message
    * Uses similarity search on embeddings to find related context
    */
-  private async getRelevantHistory(userId: string, message: string, limit = 5): Promise<AIChatHistory[]> {
+  private async getRelevantHistory(
+    userId: string,
+    message: string,
+    limit = 5
+  ): Promise<AIChatHistory[]> {
     const messageEmbedding = await this.generateEmbedding(message);
 
     const { data: history, error } = await supabase
@@ -115,7 +119,7 @@ Remember: You are a supportive guide, not a replacement for healthcare professio
     const response = await fetch('https://api.groq.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.groqApiKey}`,
+        Authorization: `Bearer ${this.groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -131,6 +135,7 @@ Remember: You are a supportive guide, not a replacement for healthcare professio
     }
 
     const data: GroqResponse = await response.json();
+
     return data.choices[0].message.content;
   }
 
@@ -142,7 +147,7 @@ Remember: You are a supportive guide, not a replacement for healthcare professio
     const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.elevenLabsApiKey}`,
+        Authorization: `Bearer ${this.elevenLabsApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -160,6 +165,7 @@ Remember: You are a supportive guide, not a replacement for healthcare professio
     }
 
     const data: ElevenLabsResponse = await response.json();
+
     return Buffer.from(data.audio, 'base64');
   }
 
@@ -167,7 +173,11 @@ Remember: You are a supportive guide, not a replacement for healthcare professio
    * Process a user message and generate a response
    * Includes context from previous conversations and converts response to speech
    */
-  async processMessage(userId: string, childId: string | null, message: string): Promise<{
+  async processMessage(
+    userId: string,
+    childId: string | null,
+    message: string
+  ): Promise<{
     text: string;
     audio: Buffer;
   }> {
@@ -177,10 +187,12 @@ Remember: You are a supportive guide, not a replacement for healthcare professio
     // Build conversation context
     const messages: GroqMessage[] = [
       { role: 'system', content: this.systemPrompt },
-      ...history.map(h => [
-        { role: 'user' as const, content: h.message },
-        { role: 'assistant' as const, content: h.response },
-      ]).flat(),
+      ...history
+        .map(h => [
+          { role: 'user' as const, content: h.message },
+          { role: 'assistant' as const, content: h.response },
+        ])
+        .flat(),
       { role: 'user', content: message },
     ];
 
@@ -191,7 +203,8 @@ Remember: You are a supportive guide, not a replacement for healthcare professio
     const audio = await this.textToSpeech(response);
 
     // Save conversation to history
-    const embedding = await this.generateEmbedding(message + ' ' + response);
+    const embedding = await this.generateEmbedding(`${message} ${response}`);
+
     await this.db.createChatHistory({
       user_id: userId,
       child_id: childId,

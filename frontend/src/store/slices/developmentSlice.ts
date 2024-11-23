@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '@/services/api';
 
 interface Milestone {
@@ -53,23 +53,36 @@ const initialState: DevelopmentState = {
   error: null,
 };
 
-export const fetchMilestones = createAsyncThunk('development/fetchMilestones', async () => {
-  const response = await api.get('/api/development/milestones');
-  return response.data;
-});
+export const fetchMilestones = createAsyncThunk(
+  'development/fetchMilestones',
+  async () => {
+    const response = await api.get('/api/development/milestones');
+
+    return response.data;
+  }
+);
 
 export const fetchMilestoneById = createAsyncThunk(
   'development/fetchMilestoneById',
   async (milestoneId: string) => {
-    const response = await api.get(`/api/development/milestones/${milestoneId}`);
+    const response = await api.get(
+      `/api/development/milestones/${milestoneId}`
+    );
+
     return response.data;
   }
 );
 
 export const createMilestone = createAsyncThunk(
   'development/createMilestone',
-  async (milestoneData: Omit<Milestone, 'id' | 'created_at' | 'updated_at'>) => {
-    const response = await api.post('/api/development/milestones', milestoneData);
+  async (
+    milestoneData: Omit<Milestone, 'id' | 'created_at' | 'updated_at'>
+  ) => {
+    const response = await api.post(
+      '/api/development/milestones',
+      milestoneData
+    );
+
     return response.data;
   }
 );
@@ -77,7 +90,10 @@ export const createMilestone = createAsyncThunk(
 export const fetchMilestoneTracking = createAsyncThunk(
   'development/fetchMilestoneTracking',
   async (childId: string) => {
-    const response = await api.get(`/api/development/child/${childId}/milestones`);
+    const response = await api.get(
+      `/api/development/child/${childId}/milestones`
+    );
+
     return { childId, tracking: response.data };
   }
 );
@@ -85,7 +101,11 @@ export const fetchMilestoneTracking = createAsyncThunk(
 export const trackMilestone = createAsyncThunk(
   'development/trackMilestone',
   async (trackingData: Omit<MilestoneTracking, 'id' | 'created_at'>) => {
-    const response = await api.post('/api/development/milestones/track', trackingData);
+    const response = await api.post(
+      '/api/development/milestones/track',
+      trackingData
+    );
+
     return response.data;
   }
 );
@@ -94,6 +114,7 @@ export const fetchDevelopmentReport = createAsyncThunk(
   'development/fetchDevelopmentReport',
   async (childId: string) => {
     const response = await api.get(`/api/development/child/${childId}/report`);
+
     return { childId, report: response.data };
   }
 );
@@ -103,19 +124,21 @@ const developmentSlice = createSlice({
   initialState,
   reducers: {
     selectMilestone: (state, action) => {
-      state.selectedMilestone = state.milestones.find(milestone => milestone.id === action.payload) || null;
+      state.selectedMilestone =
+        state.milestones.find(milestone => milestone.id === action.payload) ||
+        null;
     },
-    clearSelectedMilestone: (state) => {
+    clearSelectedMilestone: state => {
       state.selectedMilestone = null;
     },
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     // Fetch Milestones
     builder
-      .addCase(fetchMilestones.pending, (state) => {
+      .addCase(fetchMilestones.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -130,14 +153,17 @@ const developmentSlice = createSlice({
 
     // Fetch Milestone by ID
     builder
-      .addCase(fetchMilestoneById.pending, (state) => {
+      .addCase(fetchMilestoneById.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchMilestoneById.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedMilestone = action.payload;
-        const index = state.milestones.findIndex(milestone => milestone.id === action.payload.id);
+        const index = state.milestones.findIndex(
+          milestone => milestone.id === action.payload.id
+        );
+
         if (index !== -1) {
           state.milestones[index] = action.payload;
         } else {
@@ -151,7 +177,7 @@ const developmentSlice = createSlice({
 
     // Create Milestone
     builder
-      .addCase(createMilestone.pending, (state) => {
+      .addCase(createMilestone.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -167,29 +193,35 @@ const developmentSlice = createSlice({
 
     // Fetch Milestone Tracking
     builder
-      .addCase(fetchMilestoneTracking.pending, (state) => {
+      .addCase(fetchMilestoneTracking.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchMilestoneTracking.fulfilled, (state, action) => {
         state.loading = false;
-        state.milestoneTracking[action.payload.childId] = action.payload.tracking;
+        state.milestoneTracking[action.payload.childId] =
+          action.payload.tracking;
       })
       .addCase(fetchMilestoneTracking.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch milestone tracking';
+        state.error =
+          action.error.message || 'Failed to fetch milestone tracking';
       });
 
     // Track Milestone
     builder
-      .addCase(trackMilestone.pending, (state) => {
+      .addCase(trackMilestone.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(trackMilestone.fulfilled, (state, action) => {
         state.loading = false;
         const tracking = state.milestoneTracking[action.payload.child_id] || [];
-        state.milestoneTracking[action.payload.child_id] = [...tracking, action.payload];
+
+        state.milestoneTracking[action.payload.child_id] = [
+          ...tracking,
+          action.payload,
+        ];
       })
       .addCase(trackMilestone.rejected, (state, action) => {
         state.loading = false;
@@ -198,20 +230,23 @@ const developmentSlice = createSlice({
 
     // Fetch Development Report
     builder
-      .addCase(fetchDevelopmentReport.pending, (state) => {
+      .addCase(fetchDevelopmentReport.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchDevelopmentReport.fulfilled, (state, action) => {
         state.loading = false;
-        state.developmentReports[action.payload.childId] = action.payload.report;
+        state.developmentReports[action.payload.childId] =
+          action.payload.report;
       })
       .addCase(fetchDevelopmentReport.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch development report';
+        state.error =
+          action.error.message || 'Failed to fetch development report';
       });
   },
 });
 
-export const { selectMilestone, clearSelectedMilestone, clearError } = developmentSlice.actions;
+export const { selectMilestone, clearSelectedMilestone, clearError } =
+  developmentSlice.actions;
 export default developmentSlice.reducer;

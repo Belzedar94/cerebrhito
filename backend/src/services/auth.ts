@@ -27,6 +27,7 @@ export class AuthService {
 
   private async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
+
     return bcrypt.hash(password, salt);
   }
 
@@ -35,20 +36,12 @@ export class AuthService {
   }
 
   private generateToken(userId: string, email: string, role: UserRole): string {
-    return jwt.sign(
-      { userId, email, role },
-      this.jwtSecret,
-      { expiresIn: '7d' }
-    );
+    return jwt.sign({ userId, email, role }, this.jwtSecret, { expiresIn: '7d' });
   }
 
   async signUp(data: SignUpData) {
     // Check if user already exists
-    const existingUser = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', data.email)
-      .single();
+    const existingUser = await supabase.from('users').select('id').eq('email', data.email).single();
 
     if (existingUser.data) {
       throw new Error('User already exists');
@@ -99,15 +92,13 @@ export class AuthService {
   async signIn(data: SignInData) {
     // Get user from database
     const user = await this.db.getUserByEmail(data.email);
+
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
     // Verify password
-    const isPasswordValid = await this.comparePasswords(
-      data.password,
-      user.encrypted_password
-    );
+    const isPasswordValid = await this.comparePasswords(data.password, user.encrypted_password);
 
     if (!isPasswordValid) {
       throw new Error('Invalid credentials');
@@ -141,6 +132,7 @@ export class AuthService {
   async signOut(userId: string) {
     // Sign out from Supabase Auth
     const { error } = await supabase.auth.signOut();
+
     if (error) {
       throw error;
     }
@@ -159,15 +151,13 @@ export class AuthService {
   async updatePassword(userId: string, currentPassword: string, newPassword: string) {
     // Get user from database
     const user = await this.db.getUserById(userId);
+
     if (!user) {
       throw new Error('User not found');
     }
 
     // Verify current password
-    const isPasswordValid = await this.comparePasswords(
-      currentPassword,
-      user.encrypted_password
-    );
+    const isPasswordValid = await this.comparePasswords(currentPassword, user.encrypted_password);
 
     if (!isPasswordValid) {
       throw new Error('Invalid current password');
@@ -186,10 +176,7 @@ export class AuthService {
     const hashedPassword = await this.hashPassword(newPassword);
 
     // Update password in our database
-    await supabase
-      .from('users')
-      .update({ encrypted_password: hashedPassword })
-      .eq('id', userId);
+    await supabase.from('users').update({ encrypted_password: hashedPassword }).eq('id', userId);
   }
 
   verifyToken(token: string) {

@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
-import { AuthService, SignUpData, SignInData } from '../services/auth';
+import type { Request, Response } from 'express';
+import type { SignUpData, SignInData } from '../services/auth';
+import { AuthService } from '../services/auth';
 import { z } from 'zod';
 
 const signUpSchema = z.object({
@@ -30,6 +31,7 @@ export class AuthController {
     try {
       const validatedData = signUpSchema.parse(req.body);
       const result = await this.authService.signUp(validatedData as SignUpData);
+
       res.status(201).json(result);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -44,6 +46,7 @@ export class AuthController {
     try {
       const validatedData = signInSchema.parse(req.body);
       const result = await this.authService.signIn(validatedData as SignInData);
+
       res.json(result);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -59,6 +62,7 @@ export class AuthController {
       if (!req.user) {
         throw new Error('User not authenticated');
       }
+
       await this.authService.signOut(req.user.userId);
       res.json({ message: 'Successfully signed out' });
     } catch (error) {
@@ -69,6 +73,7 @@ export class AuthController {
   resetPassword = async (req: Request, res: Response) => {
     try {
       const { email } = z.object({ email: z.string().email() }).parse(req.body);
+
       await this.authService.resetPassword(email);
       res.json({ message: 'Password reset email sent' });
     } catch (error) {
@@ -87,6 +92,7 @@ export class AuthController {
       }
 
       const validatedData = updatePasswordSchema.parse(req.body);
+
       await this.authService.updatePassword(
         req.user.userId,
         validatedData.currentPassword,

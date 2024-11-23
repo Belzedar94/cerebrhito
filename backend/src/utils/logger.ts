@@ -27,13 +27,14 @@ const developmentFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message}${
-      info.splat !== undefined ? `${info.splat}` : ' '
-    }${
-      info.stack !== undefined ? `\n${info.stack}` : ''
-    }${
-      info.metadata && Object.keys(info.metadata).length ? `\n${JSON.stringify(info.metadata, null, 2)}` : ''
-    }`
+    info =>
+      `${info.timestamp} ${info.level}: ${info.message}${
+        info.splat !== undefined ? `${info.splat}` : ' '
+      }${info.stack !== undefined ? `\n${info.stack}` : ''}${
+        info.metadata && Object.keys(info.metadata).length
+          ? `\n${JSON.stringify(info.metadata, null, 2)}`
+          : ''
+      }`
   )
 );
 
@@ -56,7 +57,7 @@ const errorFileRotateTransport = new winston.transports.DailyRotateFile({
   maxFiles: '30d', // Keep logs for 30 days
   maxSize: '20m', // Rotate when size reaches 20MB
   format: productionFormat,
-  zippedArchive: true
+  zippedArchive: true,
 });
 
 // Create rotating file transport for combined logs
@@ -66,7 +67,7 @@ const combinedFileRotateTransport = new winston.transports.DailyRotateFile({
   maxFiles: '30d',
   maxSize: '20m',
   format: productionFormat,
-  zippedArchive: true
+  zippedArchive: true,
 });
 
 // Create rotating file transport for HTTP logs
@@ -77,13 +78,13 @@ const httpFileRotateTransport = new winston.transports.DailyRotateFile({
   maxFiles: '7d', // Keep HTTP logs for 7 days
   maxSize: '20m',
   format: productionFormat,
-  zippedArchive: true
+  zippedArchive: true,
 });
 
 // Create console transport with appropriate format based on environment
 const consoleTransport = new winston.transports.Console({
   format: process.env.NODE_ENV === 'development' ? developmentFormat : productionFormat,
-  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info'
+  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
 });
 
 // Create the logger instance
@@ -94,7 +95,7 @@ export const logger = winston.createLogger({
     consoleTransport,
     errorFileRotateTransport,
     combinedFileRotateTransport,
-    httpFileRotateTransport
+    httpFileRotateTransport,
   ],
   // Handle uncaught exceptions and unhandled rejections
   exceptionHandlers: [
@@ -103,8 +104,8 @@ export const logger = winston.createLogger({
       datePattern: 'YYYY-MM-DD',
       maxFiles: '30d',
       format: productionFormat,
-      zippedArchive: true
-    })
+      zippedArchive: true,
+    }),
   ],
   rejectionHandlers: [
     new winston.transports.DailyRotateFile({
@@ -112,10 +113,10 @@ export const logger = winston.createLogger({
       datePattern: 'YYYY-MM-DD',
       maxFiles: '30d',
       format: productionFormat,
-      zippedArchive: true
-    })
+      zippedArchive: true,
+    }),
   ],
-  exitOnError: false
+  exitOnError: false,
 });
 
 // Add request logging method

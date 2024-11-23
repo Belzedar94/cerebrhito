@@ -1,5 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
+import type { Request, Response, NextFunction } from 'express';
+import type { AnyZodObject } from 'zod';
+import { ZodError } from 'zod';
 import { AppError } from '../errors/types';
 import { logger } from '../utils/logger';
 
@@ -23,8 +24,9 @@ export const validate = (
     try {
       const data = await schema.parseAsync(req[target], {
         stripUnknown: options.stripUnknown,
-        strict: options.strict
+        strict: options.strict,
       });
+
       req[target] = data;
       next();
     } catch (error) {
@@ -33,16 +35,18 @@ export const validate = (
           path: req.path,
           target,
           errors: error.errors,
-          data: req[target]
+          data: req[target],
         });
 
-        next(AppError.validation('Invalid request data', {
-          errors: error.errors.map(err => ({
-            path: err.path.join('.'),
-            message: err.message,
-            code: err.code
-          }))
-        }));
+        next(
+          AppError.validation('Invalid request data', {
+            errors: error.errors.map(err => ({
+              path: err.path.join('.'),
+              message: err.message,
+              code: err.code,
+            })),
+          })
+        );
       } else {
         next(error);
       }
@@ -70,12 +74,16 @@ export const validateRequest = (
 
       if (schemas.body) {
         validationPromises.push(
-          schemas.body.parseAsync(req.body, options)
-            .then(data => { req.body = data; })
+          schemas.body
+            .parseAsync(req.body, options)
+            .then(data => {
+              req.body = data;
+            })
             .catch(error => {
               if (error instanceof ZodError) {
                 errors.push({ target: 'body', errors: error.errors });
               }
+
               throw error;
             })
         );
@@ -83,12 +91,16 @@ export const validateRequest = (
 
       if (schemas.query) {
         validationPromises.push(
-          schemas.query.parseAsync(req.query, options)
-            .then(data => { req.query = data; })
+          schemas.query
+            .parseAsync(req.query, options)
+            .then(data => {
+              req.query = data;
+            })
             .catch(error => {
               if (error instanceof ZodError) {
                 errors.push({ target: 'query', errors: error.errors });
               }
+
               throw error;
             })
         );
@@ -96,12 +108,16 @@ export const validateRequest = (
 
       if (schemas.params) {
         validationPromises.push(
-          schemas.params.parseAsync(req.params, options)
-            .then(data => { req.params = data; })
+          schemas.params
+            .parseAsync(req.params, options)
+            .then(data => {
+              req.params = data;
+            })
             .catch(error => {
               if (error instanceof ZodError) {
                 errors.push({ target: 'params', errors: error.errors });
               }
+
               throw error;
             })
         );
@@ -117,17 +133,19 @@ export const validateRequest = (
           data: {
             body: schemas.body ? req.body : undefined,
             query: schemas.query ? req.query : undefined,
-            params: schemas.params ? req.params : undefined
-          }
+            params: schemas.params ? req.params : undefined,
+          },
         });
 
-        next(AppError.validation('Invalid request data', {
-          errors: error.errors.map(err => ({
-            path: err.path.join('.'),
-            message: err.message,
-            code: err.code
-          }))
-        }));
+        next(
+          AppError.validation('Invalid request data', {
+            errors: error.errors.map(err => ({
+              path: err.path.join('.'),
+              message: err.message,
+              code: err.code,
+            })),
+          })
+        );
       } else {
         next(error);
       }
@@ -140,10 +158,7 @@ export const validateRequest = (
  * @param allowedTypes Array of allowed MIME types
  * @param maxSize Maximum file size in bytes
  */
-export const validateFileUpload = (
-  allowedTypes: string[],
-  maxSize: number
-) => {
+export const validateFileUpload = (allowedTypes: string[], maxSize: number) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.files && !req.file) {
       return next(AppError.validation('No file uploaded'));
@@ -152,22 +167,28 @@ export const validateFileUpload = (
     const files = req.files ? Object.values(req.files).flat() : [req.file];
 
     for (const file of files) {
-      if (!file) continue;
+      if (!file) {
+        continue;
+      }
 
       // Check file type
       if (!allowedTypes.includes(file.mimetype)) {
-        return next(AppError.validation('Invalid file type', {
-          allowedTypes,
-          receivedType: file.mimetype
-        }));
+        return next(
+          AppError.validation('Invalid file type', {
+            allowedTypes,
+            receivedType: file.mimetype,
+          })
+        );
       }
 
       // Check file size
       if (file.size > maxSize) {
-        return next(AppError.validation('File too large', {
-          maxSize,
-          receivedSize: file.size
-        }));
+        return next(
+          AppError.validation('File too large', {
+            maxSize,
+            receivedSize: file.size,
+          })
+        );
       }
     }
 
@@ -204,22 +225,29 @@ export const validatePagination = () => {
 export const validateSort = (allowedFields: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const sort = req.query.sort as string;
-    if (!sort) return next();
+
+    if (!sort) {
+      return next();
+    }
 
     const [field, order] = sort.split(':');
-    
+
     if (!allowedFields.includes(field)) {
-      return next(AppError.validation('Invalid sort field', {
-        allowedFields,
-        receivedField: field
-      }));
+      return next(
+        AppError.validation('Invalid sort field', {
+          allowedFields,
+          receivedField: field,
+        })
+      );
     }
 
     if (order && !['asc', 'desc'].includes(order.toLowerCase())) {
-      return next(AppError.validation('Invalid sort order', {
-        allowedOrders: ['asc', 'desc'],
-        receivedOrder: order
-      }));
+      return next(
+        AppError.validation('Invalid sort order', {
+          allowedOrders: ['asc', 'desc'],
+          receivedOrder: order,
+        })
+      );
     }
 
     next();

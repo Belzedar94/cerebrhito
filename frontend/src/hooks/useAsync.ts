@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useError } from '@/hooks/useError';
 
@@ -23,7 +23,7 @@ export function useAsync<T>(
   const [state, setState] = useState<AsyncState<T>>({
     data: null,
     loading: false,
-    error: null
+    error: null,
   });
 
   const { toast } = useToast();
@@ -48,25 +48,30 @@ export function useAsync<T>(
     while (attempts < maxAttempts) {
       try {
         const data = await executeWithTimeout();
+
         setState({ data, loading: false, error: null });
         options.onSuccess?.(data);
+
         return data;
       } catch (error) {
         attempts++;
         const isLastAttempt = attempts === maxAttempts;
 
         if (isLastAttempt) {
-          const finalError = error instanceof Error ? error : new Error(String(error));
+          const finalError =
+            error instanceof Error ? error : new Error(String(error));
+
           setState({ data: null, loading: false, error: finalError });
           handleError(finalError);
           options.onError?.(finalError);
+
           return null;
         } else {
           // Show retry toast
           toast({
             title: 'Operation failed',
             description: `Retrying in ${delay / 1000} seconds... (${attempts}/${maxAttempts})`,
-            variant: 'destructive'
+            variant: 'destructive',
           });
 
           // Wait before retrying
@@ -79,7 +84,7 @@ export function useAsync<T>(
   return {
     ...state,
     execute,
-    reset: () => setState({ data: null, loading: false, error: null })
+    reset: () => setState({ data: null, loading: false, error: null }),
   };
 }
 
@@ -104,20 +109,22 @@ export function useAsyncBatch<T>(
     data: [],
     loading: false,
     error: null,
-    progress: 0
+    progress: 0,
   });
 
   const { toast } = useToast();
   const { handleError } = useError();
 
   const execute = useCallback(async () => {
-    if (!items.length) return;
+    if (!items.length) {
+      return;
+    }
 
     setState(prev => ({
       ...prev,
       loading: true,
       error: null,
-      progress: 0
+      progress: 0,
     }));
 
     const batchSize = options.batchSize ?? 10;
@@ -140,15 +147,18 @@ export function useAsyncBatch<T>(
             const batchResults = await Promise.all(
               batch.map(item => asyncFn(item))
             );
+
             completed += batch.length;
             setState(prev => ({
               ...prev,
-              progress: (completed / items.length) * 100
+              progress: (completed / items.length) * 100,
             }));
+
             return batchResults;
           });
 
         const batchResults = await Promise.all(batchPromises);
+
         results.push(...batchResults.flat());
       }
 
@@ -156,21 +166,25 @@ export function useAsyncBatch<T>(
         data: results,
         loading: false,
         error: null,
-        progress: 100
+        progress: 100,
       });
 
       options.onSuccess?.(results);
+
       return results;
     } catch (error) {
-      const finalError = error instanceof Error ? error : new Error(String(error));
+      const finalError =
+        error instanceof Error ? error : new Error(String(error));
+
       setState({
         data: results,
         loading: false,
         error: finalError,
-        progress: (completed / items.length) * 100
+        progress: (completed / items.length) * 100,
       });
       handleError(finalError);
       options.onError?.(finalError);
+
       return null;
     }
   }, [asyncFn, items, options, toast, handleError]);
@@ -178,7 +192,8 @@ export function useAsyncBatch<T>(
   return {
     ...state,
     execute,
-    reset: () => setState({ data: [], loading: false, error: null, progress: 0 })
+    reset: () =>
+      setState({ data: [], loading: false, error: null, progress: 0 }),
   };
 }
 
@@ -204,7 +219,7 @@ export function useAsyncQueue<T>(
     loading: false,
     error: null,
     pending: 0,
-    completed: 0
+    completed: 0,
   });
 
   const [queue, setQueue] = useState<any[]>([]);
@@ -212,12 +227,15 @@ export function useAsyncQueue<T>(
 
   const add = useCallback((items: any | any[]) => {
     const newItems = Array.isArray(items) ? items : [items];
+
     setQueue(prev => [...prev, ...newItems]);
     setState(prev => ({ ...prev, pending: prev.pending + newItems.length }));
   }, []);
 
   const execute = useCallback(async () => {
-    if (!queue.length || state.loading) return;
+    if (!queue.length || state.loading) {
+      return;
+    }
 
     setState(prev => ({ ...prev, loading: true, error: null }));
 
@@ -232,28 +250,34 @@ export function useAsyncQueue<T>(
         const batchPromises = batch.map(async item => {
           try {
             const result = await asyncFn(item);
+
             setState(prev => ({
               ...prev,
               completed: prev.completed + 1,
-              pending: prev.pending - 1
+              pending: prev.pending - 1,
             }));
+
             return result;
           } catch (error) {
             if (options.retryFailedItems) {
               failedItems.push(item);
             }
+
             setState(prev => ({
               ...prev,
-              pending: prev.pending - 1
+              pending: prev.pending - 1,
             }));
             throw error;
           }
         });
 
         const batchResults = await Promise.allSettled(batchPromises);
+
         results.push(
           ...batchResults
-            .filter((r): r is PromiseFulfilledResult<T> => r.status === 'fulfilled')
+            .filter(
+              (r): r is PromiseFulfilledResult<T> => r.status === 'fulfilled'
+            )
             .map(r => r.value)
         );
       }
@@ -267,20 +291,24 @@ export function useAsyncQueue<T>(
         ...prev,
         data: [...prev.data, ...results],
         loading: false,
-        error: null
+        error: null,
       }));
 
       options.onSuccess?.(results);
+
       return results;
     } catch (error) {
-      const finalError = error instanceof Error ? error : new Error(String(error));
+      const finalError =
+        error instanceof Error ? error : new Error(String(error));
+
       setState(prev => ({
         ...prev,
         loading: false,
-        error: finalError
+        error: finalError,
       }));
       handleError(finalError);
       options.onError?.(finalError);
+
       return null;
     }
   }, [queue, state.loading, options, add, asyncFn, handleError]);
@@ -297,8 +325,8 @@ export function useAsyncQueue<T>(
         loading: false,
         error: null,
         pending: 0,
-        completed: 0
+        completed: 0,
       });
-    }
+    },
   };
 }

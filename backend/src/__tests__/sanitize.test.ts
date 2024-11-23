@@ -5,7 +5,7 @@ import {
   createSanitizedString,
   createSanitizedText,
   createSanitizedObject,
-  sanitizeOptions
+  sanitizeOptions,
 } from '../utils/sanitize';
 import { z } from 'zod';
 
@@ -14,12 +14,14 @@ describe('Sanitization Utils', () => {
     it('should allow basic formatting', () => {
       const input = '<p>Hello <b>world</b>!</p><script>alert("xss")</script>';
       const output = sanitizeContent(input, sanitizeOptions.content);
+
       expect(output).toBe('<p>Hello <b>world</b>!</p>');
     });
 
     it('should strip all HTML with text option', () => {
       const input = '<p>Hello <b>world</b>!</p><script>alert("xss")</script>';
       const output = sanitizeContent(input, sanitizeOptions.text);
+
       expect(output).toBe('Hello world!');
     });
 
@@ -27,9 +29,8 @@ describe('Sanitization Utils', () => {
       const input =
         '<p>About me: <b>Developer</b> & <i>Designer</i></p><script>alert("xss")</script>';
       const output = sanitizeContent(input, sanitizeOptions.profile);
-      expect(output).toBe(
-        '<p>About me: <b>Developer</b> &amp; <i>Designer</i></p>'
-      );
+
+      expect(output).toBe('<p>About me: <b>Developer</b> &amp; <i>Designer</i></p>');
     });
 
     it('should handle empty input', () => {
@@ -46,18 +47,21 @@ describe('Sanitization Utils', () => {
     it('should strip all HTML', () => {
       const input = '<p>Hello <b>world</b>!</p><script>alert("xss")</script>';
       const output = sanitizeText(input);
+
       expect(output).toBe('Hello world!');
     });
 
     it('should preserve whitespace', () => {
       const input = '  Hello   world  ';
       const output = sanitizeText(input);
+
       expect(output).toBe('Hello world');
     });
 
     it('should handle special characters', () => {
       const input = '&lt;script&gt; Hello & World &lt;/script&gt;';
       const output = sanitizeText(input);
+
       expect(output).toBe('<script> Hello & World </script>');
     });
   });
@@ -68,8 +72,8 @@ describe('Sanitization Utils', () => {
         name: '<b>John</b><script>alert("xss")</script>',
         profile: {
           bio: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>',
-          links: ['<a href="http://example.com">Link</a><script>alert("xss")</script>']
-        }
+          links: ['<a href="http://example.com">Link</a><script>alert("xss")</script>'],
+        },
       };
 
       const output = sanitizeObject(input, sanitizeOptions.profile);
@@ -79,21 +83,21 @@ describe('Sanitization Utils', () => {
         profile: {
           bio: '<p>Hello <b>world</b>!</p>',
           links: [
-            '<a href="http://example.com" target="_blank" rel="noopener noreferrer">Link</a>'
-          ]
-        }
+            '<a href="http://example.com" target="_blank" rel="noopener noreferrer">Link</a>',
+          ],
+        },
       });
     });
 
     it('should handle arrays', () => {
       const input = {
-        tags: ['<b>Tag1</b>', '<i>Tag2</i>', '<script>alert("xss")</script>']
+        tags: ['<b>Tag1</b>', '<i>Tag2</i>', '<script>alert("xss")</script>'],
       };
 
       const output = sanitizeObject(input, sanitizeOptions.text);
 
       expect(output).toEqual({
-        tags: ['Tag1', 'Tag2', 'alert("xss")']
+        tags: ['Tag1', 'Tag2', 'alert("xss")'],
       });
     });
 
@@ -103,7 +107,7 @@ describe('Sanitization Utils', () => {
         age: 30,
         active: true,
         score: 4.5,
-        data: null
+        data: null,
       };
 
       const output = sanitizeObject(input);
@@ -113,7 +117,7 @@ describe('Sanitization Utils', () => {
         age: 30,
         active: true,
         score: 4.5,
-        data: null
+        data: null,
       });
     });
   });
@@ -122,14 +126,15 @@ describe('Sanitization Utils', () => {
     describe('createSanitizedString', () => {
       it('should create a string transformer', () => {
         const schema = z.object({
-          content: createSanitizedString(sanitizeOptions.content)
+          content: createSanitizedString(sanitizeOptions.content),
         });
 
         const input = {
-          content: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>'
+          content: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>',
         };
 
         const output = schema.parse(input);
+
         expect(output.content).toBe('<p>Hello <b>world</b>!</p>');
       });
     });
@@ -137,14 +142,15 @@ describe('Sanitization Utils', () => {
     describe('createSanitizedText', () => {
       it('should create a text transformer', () => {
         const schema = z.object({
-          text: createSanitizedText()
+          text: createSanitizedText(),
         });
 
         const input = {
-          text: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>'
+          text: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>',
         };
 
         const output = schema.parse(input);
+
         expect(output.text).toBe('Hello world!');
       });
     });
@@ -157,8 +163,8 @@ describe('Sanitization Utils', () => {
             description: z.string(),
             profile: z.object({
               bio: z.string(),
-              links: z.array(z.string())
-            })
+              links: z.array(z.string()),
+            }),
           }),
           sanitizeOptions.profile
         );
@@ -168,10 +174,8 @@ describe('Sanitization Utils', () => {
           description: '<p>About me</p><script>alert("xss")</script>',
           profile: {
             bio: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>',
-            links: [
-              '<a href="http://example.com">Link</a><script>alert("xss")</script>'
-            ]
-          }
+            links: ['<a href="http://example.com">Link</a><script>alert("xss")</script>'],
+          },
         };
 
         const output = schema.parse(input);
@@ -182,9 +186,9 @@ describe('Sanitization Utils', () => {
           profile: {
             bio: '<p>Hello <b>world</b>!</p>',
             links: [
-              '<a href="http://example.com" target="_blank" rel="noopener noreferrer">Link</a>'
-            ]
-          }
+              '<a href="http://example.com" target="_blank" rel="noopener noreferrer">Link</a>',
+            ],
+          },
         });
       });
     });

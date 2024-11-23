@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAIAssistant } from '@/hooks/useAIAssistant';
-import { ChatMessage } from './ChatMessage';
-import { ChatInput } from './ChatInput';
+import { Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Mic, MicOff } from 'lucide-react';
+import { useAIAssistant } from '@/hooks/useAIAssistant';
+import { ChatInput } from './ChatInput';
+import { ChatMessage } from './ChatMessage';
 
 interface AIAssistantProps {
   childId?: string | null;
@@ -39,7 +39,11 @@ export function AIAssistant({ childId = null }: AIAssistantProps) {
           onClick={handleVoiceInput}
           className={isListening ? 'bg-red-100' : ''}
         >
-          {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          {isListening ? (
+            <MicOff className="h-4 w-4" />
+          ) : (
+            <Mic className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
@@ -49,7 +53,7 @@ export function AIAssistant({ childId = null }: AIAssistantProps) {
             <p>Hello! How can I assist you today?</p>
           </div>
         ) : (
-          messages.map((message) => (
+          messages.map(message => (
             <ChatMessage
               key={message.id}
               role={message.role}
@@ -72,10 +76,9 @@ export function AIAssistant({ childId = null }: AIAssistantProps) {
       </ScrollArea>
 
       <ChatInput
-        onSendMessage={(text) => sendMessage(text, childId)}
+        onSendMessage={text => sendMessage(text, childId)}
         isLoading={isLoading}
       />
     </div>
   );
 }
-

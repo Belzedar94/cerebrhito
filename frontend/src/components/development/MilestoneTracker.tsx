@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDevelopment } from '@/hooks/useDevelopment';
 import { MilestoneCard } from './MilestoneCard';
 
@@ -12,11 +12,8 @@ export function MilestoneTracker({ childId }: MilestoneTrackerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    getAchievedMilestones,
-    getUpcomingMilestones,
-    trackMilestone,
-  } = useDevelopment();
+  const { getAchievedMilestones, getUpcomingMilestones, trackMilestone } =
+    useDevelopment();
 
   // Load milestones
   useEffect(() => {
@@ -53,6 +50,7 @@ export function MilestoneTracker({ childId }: MilestoneTrackerProps) {
 
       // Update lists
       const milestone = upcomingMilestones.find(m => m.id === milestoneId);
+
       if (milestone) {
         setUpcomingMilestones(prev => prev.filter(m => m.id !== milestoneId));
         setAchievedMilestones(prev => [...prev, tracking]);
@@ -71,11 +69,7 @@ export function MilestoneTracker({ childId }: MilestoneTrackerProps) {
   }
 
   if (error) {
-    return (
-      <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        {error}
-      </div>
-    );
+    return <div className="rounded-lg bg-red-50 p-4 text-red-700">{error}</div>;
   }
 
   return (
@@ -84,7 +78,7 @@ export function MilestoneTracker({ childId }: MilestoneTrackerProps) {
       <section>
         <h2 className="mb-4 text-xl font-semibold">Próximos Hitos</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {upcomingMilestones.map((milestone) => (
+          {upcomingMilestones.map(milestone => (
             <MilestoneCard
               key={milestone.id}
               name={milestone.name}
@@ -101,7 +95,7 @@ export function MilestoneTracker({ childId }: MilestoneTrackerProps) {
       <section>
         <h2 className="mb-4 text-xl font-semibold">Hitos Logrados</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {achievedMilestones.map((tracking) => (
+          {achievedMilestones.map(tracking => (
             <MilestoneCard
               key={tracking.id}
               name={tracking.milestone.name}

@@ -59,7 +59,7 @@ export enum ErrorCode {
   PROCESS_ERROR = 'PROCESS_ERROR',
   TASK_QUEUE_ERROR = 'TASK_QUEUE_ERROR',
   BACKGROUND_JOB_ERROR = 'BACKGROUND_JOB_ERROR',
-  CLEANUP_ERROR = 'CLEANUP_ERROR'
+  CLEANUP_ERROR = 'CLEANUP_ERROR',
 }
 
 export interface ErrorResponse {
@@ -82,7 +82,7 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
   const defaultError: ErrorDetails = {
     title: 'Error',
     description: message || 'An unexpected error occurred',
-    variant: 'destructive'
+    variant: 'destructive',
   };
 
   // Error code to user-friendly message mapping
@@ -93,14 +93,14 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
         title: 'Authentication Required',
         description: 'Please sign in to continue',
         action: 'Sign In',
-        variant: 'default'
+        variant: 'default',
       };
 
     case ErrorCode.FORBIDDEN:
       return {
         title: 'Access Denied',
-        description: 'You don\'t have permission to access this resource',
-        variant: 'destructive'
+        description: "You don't have permission to access this resource",
+        variant: 'destructive',
       };
 
     case ErrorCode.TOKEN_EXPIRED:
@@ -111,7 +111,7 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
         title: 'Session Expired',
         description: 'Your session has expired. Please sign in again',
         action: 'Sign In',
-        variant: 'default'
+        variant: 'default',
       };
 
     case ErrorCode.ACCOUNT_LOCKED:
@@ -119,7 +119,7 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
         title: 'Account Locked',
         description: 'Your account has been locked. Please contact support',
         action: 'Contact Support',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.ACCOUNT_DISABLED:
@@ -127,7 +127,7 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
         title: 'Account Disabled',
         description: 'Your account has been disabled. Please contact support',
         action: 'Contact Support',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.EMAIL_NOT_VERIFIED:
@@ -135,7 +135,7 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
         title: 'Email Not Verified',
         description: 'Please verify your email address to continue',
         action: 'Resend Verification',
-        variant: 'default'
+        variant: 'default',
       };
 
     // Resource Errors
@@ -146,7 +146,7 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
       return {
         title: 'Not Found',
         description: message || 'The requested resource was not found',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.CONFLICT:
@@ -156,28 +156,28 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
       return {
         title: 'Duplicate Entry',
         description: message || 'This item already exists',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.RESOURCE_DELETED:
       return {
         title: 'Resource Deleted',
         description: 'This item has been deleted',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.RESOURCE_EXPIRED:
       return {
         title: 'Resource Expired',
         description: 'This item has expired',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.RESOURCE_LIMIT_EXCEEDED:
       return {
         title: 'Limit Exceeded',
         description: 'You have reached the maximum limit for this resource',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     // Validation & Input
@@ -188,42 +188,42 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
       return {
         title: 'Invalid Input',
         description: message || 'Please check your input and try again',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.INVALID_CREDENTIALS:
       return {
         title: 'Invalid Credentials',
         description: 'The email or password you entered is incorrect',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.INVALID_DATE_FORMAT:
       return {
         title: 'Invalid Date',
         description: 'Please enter a valid date',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.INVALID_AGE_RANGE:
       return {
         title: 'Invalid Age Range',
         description: 'Please enter a valid age range',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.INVALID_FILE_TYPE:
       return {
         title: 'Invalid File Type',
         description: 'Please upload a supported file type',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.FILE_TOO_LARGE:
       return {
         title: 'File Too Large',
         description: 'Please upload a smaller file',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     // External Services
@@ -234,8 +234,9 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
     case ErrorCode.NETWORK_ERROR:
       return {
         title: 'Service Unavailable',
-        description: 'The service is temporarily unavailable. Please try again later',
-        variant: 'destructive'
+        description:
+          'The service is temporarily unavailable. Please try again later',
+        variant: 'destructive',
       };
 
     case ErrorCode.AI_SERVICE_ERROR:
@@ -245,22 +246,23 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
       return {
         title: 'AI Service Error',
         description: 'There was an error with the AI service. Please try again',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     case ErrorCode.ELEVENLABS_API_ERROR:
     case ErrorCode.TTS_CONVERSION_ERROR:
       return {
         title: 'Text-to-Speech Error',
-        description: 'There was an error converting text to speech. Please try again',
-        variant: 'destructive'
+        description:
+          'There was an error converting text to speech. Please try again',
+        variant: 'destructive',
       };
 
     case ErrorCode.RATE_LIMIT_EXCEEDED:
       return {
         title: 'Rate Limit Exceeded',
         description: 'You have made too many requests. Please try again later',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     // Internal Errors
@@ -275,7 +277,7 @@ export const getErrorDetails = (error: ErrorResponse): ErrorDetails => {
       return {
         title: 'Internal Error',
         description: 'An internal error occurred. Please try again later',
-        variant: 'destructive'
+        variant: 'destructive',
       };
 
     default:

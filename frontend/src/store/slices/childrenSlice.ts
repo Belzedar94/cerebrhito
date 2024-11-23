@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '@/services/api';
 
 interface Child {
@@ -28,31 +28,46 @@ const initialState: ChildrenState = {
   error: null,
 };
 
-export const fetchChildren = createAsyncThunk('children/fetchChildren', async () => {
-  const response = await api.get('/api/children');
-  return response.data;
-});
+export const fetchChildren = createAsyncThunk(
+  'children/fetchChildren',
+  async () => {
+    const response = await api.get('/api/children');
+
+    return response.data;
+  }
+);
 
 export const fetchChildById = createAsyncThunk(
   'children/fetchChildById',
   async (childId: string) => {
     const response = await api.get(`/api/children/${childId}`);
+
     return response.data;
   }
 );
 
 export const createChild = createAsyncThunk(
   'children/createChild',
-  async (childData: Omit<Child, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  async (
+    childData: Omit<Child, 'id' | 'user_id' | 'created_at' | 'updated_at'>
+  ) => {
     const response = await api.post('/api/children', childData);
+
     return response.data;
   }
 );
 
 export const updateChild = createAsyncThunk(
   'children/updateChild',
-  async ({ childId, childData }: { childId: string; childData: Partial<Child> }) => {
+  async ({
+    childId,
+    childData,
+  }: {
+    childId: string;
+    childData: Partial<Child>;
+  }) => {
     const response = await api.put(`/api/children/${childId}`, childData);
+
     return response.data;
   }
 );
@@ -62,19 +77,20 @@ const childrenSlice = createSlice({
   initialState,
   reducers: {
     selectChild: (state, action) => {
-      state.selectedChild = state.children.find(child => child.id === action.payload) || null;
+      state.selectedChild =
+        state.children.find(child => child.id === action.payload) || null;
     },
-    clearSelectedChild: (state) => {
+    clearSelectedChild: state => {
       state.selectedChild = null;
     },
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     // Fetch Children
     builder
-      .addCase(fetchChildren.pending, (state) => {
+      .addCase(fetchChildren.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -89,14 +105,17 @@ const childrenSlice = createSlice({
 
     // Fetch Child by ID
     builder
-      .addCase(fetchChildById.pending, (state) => {
+      .addCase(fetchChildById.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchChildById.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedChild = action.payload;
-        const index = state.children.findIndex(child => child.id === action.payload.id);
+        const index = state.children.findIndex(
+          child => child.id === action.payload.id
+        );
+
         if (index !== -1) {
           state.children[index] = action.payload;
         } else {
@@ -110,7 +129,7 @@ const childrenSlice = createSlice({
 
     // Create Child
     builder
-      .addCase(createChild.pending, (state) => {
+      .addCase(createChild.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -126,16 +145,20 @@ const childrenSlice = createSlice({
 
     // Update Child
     builder
-      .addCase(updateChild.pending, (state) => {
+      .addCase(updateChild.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateChild.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.children.findIndex(child => child.id === action.payload.id);
+        const index = state.children.findIndex(
+          child => child.id === action.payload.id
+        );
+
         if (index !== -1) {
           state.children[index] = action.payload;
         }
+
         if (state.selectedChild?.id === action.payload.id) {
           state.selectedChild = action.payload;
         }
@@ -147,5 +170,6 @@ const childrenSlice = createSlice({
   },
 });
 
-export const { selectChild, clearSelectedChild, clearError } = childrenSlice.actions;
+export const { selectChild, clearSelectedChild, clearError } =
+  childrenSlice.actions;
 export default childrenSlice.reducer;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDevelopment } from '@/hooks/useDevelopment';
 
 interface DevelopmentReportProps {
@@ -18,6 +18,7 @@ export function DevelopmentReport({ childId }: DevelopmentReportProps) {
         setError(null);
         setLoading(true);
         const reportText = await generateReport(childId);
+
         setReport(reportText);
       } catch (err) {
         setError((err as Error).message);
@@ -38,11 +39,7 @@ export function DevelopmentReport({ childId }: DevelopmentReportProps) {
   }
 
   if (error) {
-    return (
-      <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        {error}
-      </div>
-    );
+    return <div className="rounded-lg bg-red-50 p-4 text-red-700">{error}</div>;
   }
 
   if (!report) {
@@ -56,6 +53,7 @@ export function DevelopmentReport({ childId }: DevelopmentReportProps) {
   // Split report into sections
   const sections = report.split('\n\n').map((section, index) => {
     const [title, ...content] = section.split('\n');
+
     return (
       <div key={index} className="mb-6">
         <h3 className="mb-2 text-lg font-semibold">{title}</h3>

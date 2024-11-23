@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useAsync, useAsyncBatch, useAsyncQueue } from '@/hooks/useAsync';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useAsync, useAsyncBatch, useAsyncQueue } from '@/hooks/useAsync';
 
 // Simulated API calls
 const simulateApiCall = (delay: number = 1000) =>
@@ -19,13 +19,16 @@ const simulateApiCall = (delay: number = 1000) =>
 
 const simulateBatchApiCall = (item: number) =>
   new Promise<string>((resolve, reject) => {
-    setTimeout(() => {
-      if (Math.random() > 0.9) {
-        reject(new Error(`Failed to process item ${item}`));
-      } else {
-        resolve(`Processed item ${item}`);
-      }
-    }, 500 + Math.random() * 1000);
+    setTimeout(
+      () => {
+        if (Math.random() > 0.9) {
+          reject(new Error(`Failed to process item ${item}`));
+        } else {
+          resolve(`Processed item ${item}`);
+        }
+      },
+      500 + Math.random() * 1000
+    );
   });
 
 export function AsyncExample() {
@@ -36,17 +39,14 @@ export function AsyncExample() {
     data: singleData,
     loading: singleLoading,
     error: singleError,
-    execute: executeSingle
-  } = useAsync(
-    () => simulateApiCall(),
-    {
-      retryCount: 3,
-      retryDelay: 1000,
-      timeout: 5000,
-      onSuccess: (data) => console.log('Single operation succeeded:', data),
-      onError: (error) => console.error('Single operation failed:', error)
-    }
-  );
+    execute: executeSingle,
+  } = useAsync(() => simulateApiCall(), {
+    retryCount: 3,
+    retryDelay: 1000,
+    timeout: 5000,
+    onSuccess: data => console.log('Single operation succeeded:', data),
+    onError: error => console.error('Single operation failed:', error),
+  });
 
   // Batch async operations
   const {
@@ -54,17 +54,13 @@ export function AsyncExample() {
     loading: batchLoading,
     error: batchError,
     progress: batchProgress,
-    execute: executeBatch
-  } = useAsyncBatch(
-    simulateBatchApiCall,
-    items,
-    {
-      batchSize: 5,
-      concurrency: 2,
-      onSuccess: (data) => console.log('Batch operation succeeded:', data),
-      onError: (error) => console.error('Batch operation failed:', error)
-    }
-  );
+    execute: executeBatch,
+  } = useAsyncBatch(simulateBatchApiCall, items, {
+    batchSize: 5,
+    concurrency: 2,
+    onSuccess: data => console.log('Batch operation succeeded:', data),
+    onError: error => console.error('Batch operation failed:', error),
+  });
 
   // Queue async operations
   const {
@@ -74,16 +70,13 @@ export function AsyncExample() {
     pending: queuePending,
     completed: queueCompleted,
     add: addToQueue,
-    execute: executeQueue
-  } = useAsyncQueue(
-    simulateBatchApiCall,
-    {
-      concurrency: 3,
-      retryFailedItems: true,
-      onSuccess: (data) => console.log('Queue operation succeeded:', data),
-      onError: (error) => console.error('Queue operation failed:', error)
-    }
-  );
+    execute: executeQueue,
+  } = useAsyncQueue(simulateBatchApiCall, {
+    concurrency: 3,
+    retryFailedItems: true,
+    onSuccess: data => console.log('Queue operation succeeded:', data),
+    onError: error => console.error('Queue operation failed:', error),
+  });
 
   return (
     <div className="space-y-8">
@@ -91,10 +84,7 @@ export function AsyncExample() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Single Operation</h3>
         <div className="flex items-center gap-4">
-          <Button
-            onClick={() => executeSingle()}
-            disabled={singleLoading}
-          >
+          <Button onClick={() => executeSingle()} disabled={singleLoading}>
             {singleLoading ? 'Loading...' : 'Execute Single'}
           </Button>
           <div className="flex-1">
@@ -102,7 +92,9 @@ export function AsyncExample() {
               <p className="text-sm text-green-600">Result: {singleData}</p>
             )}
             {singleError && (
-              <p className="text-sm text-red-600">Error: {singleError.message}</p>
+              <p className="text-sm text-red-600">
+                Error: {singleError.message}
+              </p>
             )}
           </div>
         </div>
@@ -113,10 +105,7 @@ export function AsyncExample() {
         <h3 className="text-lg font-semibold">Batch Operations</h3>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <Button
-              onClick={() => executeBatch()}
-              disabled={batchLoading}
-            >
+            <Button onClick={() => executeBatch()} disabled={batchLoading}>
               {batchLoading ? 'Processing...' : 'Execute Batch'}
             </Button>
             <div className="flex-1">
@@ -151,6 +140,7 @@ export function AsyncExample() {
                   { length: 5 },
                   () => Math.floor(Math.random() * 100) + 1
                 );
+
                 addToQueue(newItems);
               }}
               disabled={queueLoading}

@@ -1,16 +1,17 @@
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { StoreProvider } from '@/providers/StoreProvider';
-import { Toaster } from '@/components/ui/toaster';
+import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/lib/auth/AuthContext';
+import { StoreProvider } from '@/providers/StoreProvider';
 import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'CerebrHito - AI-Powered Child Development Assistant',
-  description: 'Track and support child development with AI-powered insights and personalized guidance.',
+  description:
+    'Track and support child development with AI-powered insights and personalized guidance.',
 };
 
 export default function RootLayout({
@@ -38,4 +39,3 @@ export default function RootLayout({
     </html>
   );
 }
-

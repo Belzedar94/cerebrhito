@@ -20,12 +20,7 @@ const defaultRetryOptions: Required<RetryOptions> = {
   initialDelay: 1000,
   maxDelay: 10000,
   backoffFactor: 2,
-  retryableErrors: [
-    Error,
-    TypeError,
-    ReferenceError,
-    AppError
-  ]
+  retryableErrors: [Error, TypeError, ReferenceError, AppError],
 };
 
 /**
@@ -33,6 +28,7 @@ const defaultRetryOptions: Required<RetryOptions> = {
  */
 function calculateDelay(attempt: number, options: Required<RetryOptions>): number {
   const delay = options.initialDelay * Math.pow(options.backoffFactor, attempt - 1);
+
   return Math.min(delay, options.maxDelay);
 }
 
@@ -53,10 +49,7 @@ function sleep(ms: number): Promise<void> {
 /**
  * Retry a function with exponential backoff
  */
-export async function withRetry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const retryOptions = { ...defaultRetryOptions, ...options };
   let lastError: Error | undefined;
 
@@ -71,10 +64,11 @@ export async function withRetry<T>(
       }
 
       const delay = calculateDelay(attempt, retryOptions);
+
       logger.warn(`Attempt ${attempt} failed, retrying in ${delay}ms`, {
         error: lastError.message,
         attempt,
-        delay
+        delay,
       });
 
       await sleep(delay);
@@ -109,9 +103,7 @@ export async function withPartialSuccess<T>(
 
   // Execute promises with Promise.allSettled
   const results = await Promise.allSettled(
-    timeoutPromise
-      ? promises.map(p => Promise.race([p, timeoutPromise]))
-      : promises
+    timeoutPromise ? promises.map(p => Promise.race([p, timeoutPromise])) : promises
   );
 
   // Process results
@@ -150,9 +142,7 @@ export async function withTimeout<T>(
 /**
  * Execute a function with cancellation support
  */
-export function withCancellation<T>(
-  fn: (signal: AbortSignal) => Promise<T>
-): {
+export function withCancellation<T>(fn: (signal: AbortSignal) => Promise<T>): {
   promise: Promise<T>;
   cancel: (reason?: string) => void;
 } {
@@ -163,12 +153,13 @@ export function withCancellation<T>(
     if (signal.aborted) {
       throw new Error(`Operation cancelled: ${signal.reason || error.message}`);
     }
+
     throw error;
   });
 
   return {
     promise,
-    cancel: (reason?: string) => controller.abort(reason)
+    cancel: (reason?: string) => controller.abort(reason),
   };
 }
 
@@ -195,6 +186,7 @@ export function withRateLimit<T>(
 
     // Remove old timestamps
     const now = Date.now();
+
     while (timestamps[0] && timestamps[0] <= now - windowMs) {
       timestamps.shift();
     }
@@ -217,6 +209,7 @@ export function withRateLimit<T>(
           queue.push(queueItem);
           setTimeout(() => {
             const index = queue.indexOf(queueItem);
+
             if (index !== -1) {
               queue.splice(index, 1);
               reject(new Error('Rate limit queue timeout'));
@@ -228,6 +221,7 @@ export function withRateLimit<T>(
 
     // Execute function
     timestamps.push(now);
+
     return fn();
   };
 }
@@ -252,6 +246,7 @@ export function withDebounce<T>(
   return async () => {
     const now = Date.now();
     const isFirstCall = !lastCallTime;
+
     lastCallTime = now;
 
     // Return pending promise if it exists
@@ -266,7 +261,9 @@ export function withDebounce<T>(
         maxWaitTimeout = null;
         lastCallTime = 0;
         const promise = fn();
+
         pendingPromise = null;
+
         return promise;
       };
 
@@ -278,6 +275,7 @@ export function withDebounce<T>(
       // Execute immediately if leading and first call
       if (leading && isFirstCall) {
         resolve(execute());
+
         return;
       }
 
@@ -330,7 +328,9 @@ export function withThrottle<T>(
     if (!lastCallTime || now - lastCallTime >= waitMs) {
       lastCallTime = now;
       const result = await fn();
+
       lastResult = result;
+
       return result;
     }
 
@@ -346,18 +346,22 @@ export function withThrottle<T>(
       }
 
       pendingPromise = new Promise<T>((resolve, reject) => {
-        timeout = setTimeout(async () => {
-          try {
-            const result = await fn();
-            lastCallTime = Date.now();
-            lastResult = result;
-            pendingPromise = null;
-            resolve(result);
-          } catch (error) {
-            pendingPromise = null;
-            reject(error);
-          }
-        }, waitMs - (now - lastCallTime));
+        timeout = setTimeout(
+          async () => {
+            try {
+              const result = await fn();
+
+              lastCallTime = Date.now();
+              lastResult = result;
+              pendingPromise = null;
+              resolve(result);
+            } catch (error) {
+              pendingPromise = null;
+              reject(error);
+            }
+          },
+          waitMs - (now - lastCallTime)
+        );
       });
 
       return pendingPromise;
@@ -382,13 +386,17 @@ export function withBatch<T, R>(
   let batch: T[] = [];
   let currentPromise: Promise<R[]> | null = null;
   let timeout: NodeJS.Timeout | null = null;
-  let itemPromises: Map<number, { resolve: (value: R) => void; reject: (error: Error) => void }> = new Map();
+  let itemPromises: Map<number, { resolve: (value: R) => void; reject: (error: Error) => void }> =
+    new Map();
 
   const processBatch = async () => {
-    if (batch.length === 0) return;
+    if (batch.length === 0) {
+      return;
+    }
 
     const items = batch.slice();
     const promises = Array.from(itemPromises.entries());
+
     batch = [];
     timeout = null;
     currentPromise = null;
@@ -396,6 +404,7 @@ export function withBatch<T, R>(
 
     try {
       const results = await fn(items);
+
       promises.forEach(([index, { resolve }]) => {
         resolve(results[index]);
       });
@@ -408,6 +417,7 @@ export function withBatch<T, R>(
 
   return async (item: T) => {
     const itemIndex = batch.length;
+
     batch.push(item);
 
     const promise = new Promise<R>((resolve, reject) => {
@@ -419,6 +429,7 @@ export function withBatch<T, R>(
         clearTimeout(timeout);
         timeout = null;
       }
+
       processBatch();
     } else if (!timeout) {
       timeout = setTimeout(processBatch, maxWaitMs);
@@ -439,16 +450,9 @@ export function withMemo<T, R>(
     keyFn?: (arg: T) => string;
   } = {}
 ): (arg: T) => Promise<R> {
-  const {
-    maxSize = 100,
-    ttlMs,
-    keyFn = (arg: T) => JSON.stringify(arg)
-  } = options;
+  const { maxSize = 100, ttlMs, keyFn = (arg: T) => JSON.stringify(arg) } = options;
 
-  const cache = new Map<
-    string,
-    { value: R; timestamp: number; promise: Promise<R> }
-  >();
+  const cache = new Map<string, { value: R; timestamp: number; promise: Promise<R> }>();
 
   return async (arg: T) => {
     const key = keyFn(arg);
@@ -471,8 +475,10 @@ export function withMemo<T, R>(
 
     // Clear oldest entries if cache is full
     if (cache.size >= maxSize) {
-      const oldest = Array.from(cache.entries())
-        .sort(([, a], [, b]) => a.timestamp - b.timestamp)[0];
+      const oldest = Array.from(cache.entries()).sort(
+        ([, a], [, b]) => a.timestamp - b.timestamp
+      )[0];
+
       if (oldest) {
         cache.delete(oldest[0]);
       }
@@ -483,9 +489,11 @@ export function withMemo<T, R>(
     const entry = {
       value: await promise,
       timestamp: now,
-      promise
+      promise,
     };
+
     cache.set(key, entry);
+
     return entry.value;
   };
 }

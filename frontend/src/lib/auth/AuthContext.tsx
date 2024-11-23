@@ -29,8 +29,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       try {
         const token = localStorage.getItem('token');
+
         if (token) {
           const user = await authService.getCurrentUser();
+
           setUser(user);
         }
       } catch (error) {
@@ -49,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
       const { user, token } = await authService.login(email, password);
+
       localStorage.setItem('token', token);
       setUser(user);
       router.push('/dashboard');
@@ -65,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
       const { user, token } = await authService.register(email, password, name);
+
       localStorage.setItem('token', token);
       setUser(user);
       router.push('/dashboard');
@@ -101,8 +105,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return context;
 }

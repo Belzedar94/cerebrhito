@@ -7,7 +7,7 @@ import {
   createSanitizedString,
   createSanitizedText,
   createSanitizedObject,
-  sanitizeOptions
+  sanitizeOptions,
 } from '../src/utils/sanitize';
 
 interface SanitizeContentTest {
@@ -47,22 +47,22 @@ const testCases: {
       input: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>',
       options: sanitizeOptions.content,
       expected: '<p>Hello<b>world</b>!</p>',
-      shouldPass: true
+      shouldPass: true,
     },
     {
       name: 'Strip all HTML',
       input: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>',
       options: sanitizeOptions.text,
       expected: 'Helloworld!',
-      shouldPass: true
+      shouldPass: true,
     },
     {
       name: 'Allow profile formatting',
       input: '<p>About me: <b>Developer</b> & <i>Designer</i></p><script>alert("xss")</script>',
       options: sanitizeOptions.profile,
       expected: '<p>About me:<b>Developer</b>&amp;<i>Designer</i></p>',
-      shouldPass: true
-    }
+      shouldPass: true,
+    },
   ],
 
   // Object sanitization
@@ -73,19 +73,19 @@ const testCases: {
         name: '<b>John</b><script>alert("xss")</script>',
         profile: {
           bio: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>',
-          links: ['<a href="http://example.com">Link</a><script>alert("xss")</script>']
-        }
+          links: ['<a href="http://example.com">Link</a><script>alert("xss")</script>'],
+        },
       },
       options: sanitizeOptions.profile,
       expected: {
         name: '<b>John</b>',
         profile: {
           bio: '<p>Hello<b>world</b>!</p>',
-          links: ['<a href="http://example.com" target="_blank">Link</a>']
-        }
+          links: ['<a href="http://example.com" target="_blank">Link</a>'],
+        },
       },
-      shouldPass: true
-    }
+      shouldPass: true,
+    },
   ],
 
   // Zod schema sanitization
@@ -97,28 +97,30 @@ const testCases: {
         description: createSanitizedString(sanitizeOptions.content),
         profile: z.object({
           bio: createSanitizedString(sanitizeOptions.profile),
-          links: z.array(createSanitizedString(sanitizeOptions.content))
-        })
+          links: z.array(createSanitizedString(sanitizeOptions.content)),
+        }),
       }),
       input: {
         name: '<b>John</b><script>alert("xss")</script>',
         description: '<p>Hello <b>world</b>!</p><script>alert("xss")</script>',
         profile: {
           bio: '<p>About me: <b>Developer</b></p><script>alert("xss")</script>',
-          links: ['<a href="http://example.com">Link</a><script>alert("xss")</script>']
-        }
+          links: ['<a href="http://example.com">Link</a><script>alert("xss")</script>'],
+        },
       },
       expected: {
         name: 'John',
         description: '<p>Hello<b>world</b>!</p>',
         profile: {
           bio: '<p>About me:<b>Developer</b></p>',
-          links: ['<a href="http://example.com" target="_blank" rel="noopener noreferrer">Link</a>']
-        }
+          links: [
+            '<a href="http://example.com" target="_blank" rel="noopener noreferrer">Link</a>',
+          ],
+        },
       },
-      shouldPass: true
-    }
-  ]
+      shouldPass: true,
+    },
+  ],
 };
 
 // Test runner
@@ -126,7 +128,7 @@ async function runTests() {
   const results = {
     passed: 0,
     failed: 0,
-    details: [] as any[]
+    details: [] as any[],
   };
 
   for (const [category, cases] of Object.entries(testCases)) {
@@ -139,13 +141,21 @@ async function runTests() {
 
         switch (category) {
           case 'sanitizeContent':
-            result = sanitizeContent((testCase as SanitizeContentTest).input, (testCase as SanitizeContentTest).options);
+            result = sanitizeContent(
+              (testCase as SanitizeContentTest).input,
+              (testCase as SanitizeContentTest).options
+            );
             break;
           case 'sanitizeObject':
-            result = sanitizeObject((testCase as SanitizeObjectTest).input, (testCase as SanitizeObjectTest).options);
+            result = sanitizeObject(
+              (testCase as SanitizeObjectTest).input,
+              (testCase as SanitizeObjectTest).options
+            );
             break;
           case 'zodSanitization':
-            result = await (testCase as ZodSanitizationTest).schema.parseAsync((testCase as ZodSanitizationTest).input);
+            result = await (testCase as ZodSanitizationTest).schema.parseAsync(
+              (testCase as ZodSanitizationTest).input
+            );
             break;
         }
 
@@ -169,7 +179,7 @@ async function runTests() {
           name: testCase.name,
           result: passed === testCase.shouldPass ? 'pass' : 'fail',
           expected: testCase.expected,
-          received: result
+          received: result,
         });
       } catch (error) {
         if (!testCase.shouldPass) {
@@ -185,7 +195,7 @@ async function runTests() {
           category,
           name: testCase.name,
           result: testCase.shouldPass ? 'fail' : 'expected fail',
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }

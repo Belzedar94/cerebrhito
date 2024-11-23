@@ -17,7 +17,7 @@ interface ValidationResult<T> {
 export function useValidation<T>({
   schema,
   onSuccess,
-  onError
+  onError,
 }: ValidationOptions<T>): ValidationResult<T> {
   const [errors, setErrors] = useState<z.ZodError | null>(null);
   const [isValidating, setIsValidating] = useState(false);
@@ -29,7 +29,9 @@ export function useValidation<T>({
 
     try {
       const validData = await schema.parseAsync(data);
+
       onSuccess?.(validData);
+
       return validData;
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -38,10 +40,11 @@ export function useValidation<T>({
 
         // Show toast with first error
         const firstError = error.errors[0];
+
         toast({
           title: 'Validation Error',
           description: firstError.message,
-          variant: 'destructive'
+          variant: 'destructive',
         });
       }
     } finally {
@@ -52,6 +55,6 @@ export function useValidation<T>({
   return {
     validate,
     errors,
-    isValidating
+    isValidating,
   };
 }

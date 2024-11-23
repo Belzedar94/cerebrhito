@@ -1,6 +1,6 @@
 import { AppError, ErrorCode } from '../errors/types';
 import { errorHandler } from '../middleware/errorHandler';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { ZodError, z } from 'zod';
 
 // Mock Express request and response
@@ -13,7 +13,7 @@ function createMockReq(overrides = {}): Partial<Request> {
     body: {},
     query: {},
     params: {},
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -33,16 +33,19 @@ function createMockRes(): MockResponse {
     body: null,
     status(code: number) {
       this.statusCode = code;
+
       return this;
     },
     json(data: any) {
       this.body = data;
+
       return this;
     },
     setHeader(name: string, value: string) {
       this.headers[name] = value;
+
       return this;
-    }
+    },
   };
 
   return res;
@@ -62,6 +65,7 @@ describe('Error Handler', () => {
   describe('AppError handling', () => {
     it('should handle unauthorized error', () => {
       const error = AppError.unauthorized('Invalid credentials');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(401);
@@ -71,6 +75,7 @@ describe('Error Handler', () => {
 
     it('should handle not found error', () => {
       const error = AppError.notFound('Resource not found');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(404);
@@ -81,8 +86,9 @@ describe('Error Handler', () => {
     it('should handle validation error', () => {
       const error = AppError.validation('Invalid input', {
         field: 'email',
-        message: 'Invalid email format'
+        message: 'Invalid email format',
       });
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(400);
@@ -90,12 +96,13 @@ describe('Error Handler', () => {
       expect(res.body?.message).toBe('Invalid input');
       expect(res.body?.details).toEqual({
         field: 'email',
-        message: 'Invalid email format'
+        message: 'Invalid email format',
       });
     });
 
     it('should handle database error', () => {
       const error = AppError.databaseError('Connection failed');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(503);
@@ -105,6 +112,7 @@ describe('Error Handler', () => {
 
     it('should handle AI service error', () => {
       const error = AppError.aiServiceError('Groq API error');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(502);
@@ -117,10 +125,11 @@ describe('Error Handler', () => {
     it('should handle Zod validation error', () => {
       const schema = z.object({
         email: z.string().email(),
-        age: z.number().min(18)
+        age: z.number().min(18),
       });
 
       const error = schema.safeParse({ email: 'invalid', age: 16 }).error as Error;
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(400);
@@ -134,8 +143,9 @@ describe('Error Handler', () => {
   describe('JWT error handling', () => {
     it('should handle invalid token error', () => {
       const error = Object.assign(new Error('invalid token'), {
-        name: 'JsonWebTokenError'
+        name: 'JsonWebTokenError',
       });
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(401);
@@ -145,8 +155,9 @@ describe('Error Handler', () => {
 
     it('should handle token expired error', () => {
       const error = Object.assign(new Error('jwt expired'), {
-        name: 'TokenExpiredError'
+        name: 'TokenExpiredError',
       });
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(401);
@@ -158,8 +169,9 @@ describe('Error Handler', () => {
   describe('Database error handling', () => {
     it('should handle Postgres error', () => {
       const error = Object.assign(new Error('connection failed'), {
-        name: 'PostgresError'
+        name: 'PostgresError',
       });
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(503);
@@ -171,8 +183,9 @@ describe('Error Handler', () => {
   describe('Rate limit error handling', () => {
     it('should handle rate limit exceeded error', () => {
       const error = Object.assign(new Error('too many requests'), {
-        name: 'TooManyRequestsError'
+        name: 'TooManyRequestsError',
       });
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(429);
@@ -184,8 +197,9 @@ describe('Error Handler', () => {
   describe('External service error handling', () => {
     it('should handle Groq API error', () => {
       const error = Object.assign(new Error('API error'), {
-        name: 'GroqError'
+        name: 'GroqError',
       });
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(502);
@@ -195,8 +209,9 @@ describe('Error Handler', () => {
 
     it('should handle ElevenLabs API error', () => {
       const error = Object.assign(new Error('API error'), {
-        name: 'ElevenLabsError'
+        name: 'ElevenLabsError',
       });
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(502);
@@ -208,6 +223,7 @@ describe('Error Handler', () => {
   describe('Unknown error handling', () => {
     it('should handle unknown errors', () => {
       const error = new Error('Something went wrong');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(500);
@@ -217,9 +233,11 @@ describe('Error Handler', () => {
 
     it('should hide error details in production', () => {
       const originalEnv = process.env.NODE_ENV;
+
       process.env.NODE_ENV = 'production';
 
       const error = new Error('Something went wrong');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.statusCode).toBe(500);
@@ -234,6 +252,7 @@ describe('Error Handler', () => {
   describe('Request context', () => {
     it('should include request ID in error response', () => {
       const error = new Error('Something went wrong');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.body?.requestId).toMatch(/^req_\d+_[a-z0-9]+$/);
@@ -241,9 +260,11 @@ describe('Error Handler', () => {
 
     it('should use provided request ID if available', () => {
       const requestId = 'test-request-123';
+
       req.headers = { 'x-request-id': requestId };
 
       const error = new Error('Something went wrong');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.body?.requestId).toBe(requestId);
@@ -253,6 +274,7 @@ describe('Error Handler', () => {
       (req as any).user = { id: 'test-user-123' };
 
       const error = new Error('Something went wrong');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.body?.requestId).toBeDefined();
@@ -262,6 +284,7 @@ describe('Error Handler', () => {
       (req as any).params = { childId: 'test-child-123' };
 
       const error = new Error('Something went wrong');
+
       errorHandler(error, req as Request, res as Response, next);
 
       expect(res.body?.requestId).toBeDefined();

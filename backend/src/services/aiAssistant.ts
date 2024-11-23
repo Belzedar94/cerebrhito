@@ -1,5 +1,5 @@
-import { IService } from './base';
-import { DatabaseService } from './database';
+import type { IService } from './base';
+import type { DatabaseService } from './database';
 import { logger } from '../utils/logger';
 import { AppError, ErrorCode } from '../errors/types';
 
@@ -10,7 +10,11 @@ export interface AIConfig {
 }
 
 export interface IAIAssistantService extends IService {
-  processMessage(userId: string, childId: string | null, message: string): Promise<{text: string; audio: Buffer}>;
+  processMessage(
+    userId: string,
+    childId: string | null,
+    message: string
+  ): Promise<{ text: string; audio: Buffer }>;
   generateImage(prompt: string): Promise<string>;
 }
 
@@ -42,34 +46,30 @@ export class AIAssistantService implements IAIAssistantService {
   private async validateGroqAPI(): Promise<void> {
     // TODO: Implement Groq API validation
     if (!this.config.groqApiKey) {
-      throw new AppError(
-        ErrorCode.SERVICE_UNAVAILABLE,
-        'Groq API key not configured',
-        503
-      );
+      throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'Groq API key not configured', 503);
     }
   }
 
   private async validateElevenLabsAPI(): Promise<void> {
     // TODO: Implement ElevenLabs API validation
     if (!this.config.elevenLabsApiKey) {
-      throw new AppError(
-        ErrorCode.SERVICE_UNAVAILABLE,
-        'ElevenLabs API key not configured',
-        503
-      );
+      throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'ElevenLabs API key not configured', 503);
     }
   }
 
-  async processMessage(userId: string, childId: string | null, message: string): Promise<{text: string; audio: Buffer}> {
+  async processMessage(
+    userId: string,
+    childId: string | null,
+    message: string
+  ): Promise<{ text: string; audio: Buffer }> {
     try {
       // Get relevant chat history
       const history = await this.db.getChatHistoryByUserId(userId, 10);
-      
+
       // TODO: Implement actual AI processing with Groq
       const response = {
         text: 'This is a placeholder response. Actual AI integration pending.',
-        audio: Buffer.from('') // TODO: Implement actual audio generation with ElevenLabs
+        audio: Buffer.from(''), // TODO: Implement actual audio generation with ElevenLabs
       };
 
       // Store the interaction
@@ -77,7 +77,7 @@ export class AIAssistantService implements IAIAssistantService {
         user_id: userId,
         child_id: childId,
         message,
-        response: response.text
+        response: response.text,
       });
 
       return response;
@@ -89,10 +89,6 @@ export class AIAssistantService implements IAIAssistantService {
 
   async generateImage(prompt: string): Promise<string> {
     // TODO: Implement image generation
-    throw new AppError(
-      ErrorCode.NOT_FOUND,
-      'Image generation not implemented yet',
-      501
-    );
+    throw new AppError(ErrorCode.NOT_FOUND, 'Image generation not implemented yet', 501);
   }
 }

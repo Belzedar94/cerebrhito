@@ -32,9 +32,11 @@ export abstract class BaseService implements IService {
   async testConnection(): Promise<boolean> {
     try {
       await this.init();
+
       return true;
     } catch (error) {
       logger.error(`Connection test failed for ${this.name}`, error);
+
       return false;
     }
   }
@@ -45,18 +47,20 @@ export abstract class BaseService implements IService {
   async getDetailedStatus(): Promise<ServiceStatus> {
     try {
       const isConnected = await this.testConnection();
+
       return {
         status: isConnected ? 'up' : 'down',
         version: this.version,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       logger.error(`Failed to get status for ${this.name}`, error);
+
       return {
         status: 'down',
         version: this.version,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -86,6 +90,7 @@ export class ServiceLocator {
     if (!ServiceLocator.instance) {
       ServiceLocator.instance = new ServiceLocator();
     }
+
     return ServiceLocator.instance;
   }
 
@@ -93,14 +98,17 @@ export class ServiceLocator {
     if (this.services.has(name)) {
       throw new Error(`Service ${name} is already registered`);
     }
+
     this.services.set(name, service);
   }
 
   get<T extends IService>(name: string): T {
     const service = this.services.get(name);
+
     if (!service) {
       throw new Error(`Service ${name} not found`);
     }
+
     return service as T;
   }
 
@@ -122,13 +130,15 @@ export class ServiceLocator {
    */
   async getHealthStatus(): Promise<{ [key: string]: 'up' | 'down' }> {
     const status: { [key: string]: 'up' | 'down' } = {};
+
     for (const [name, service] of this.services.entries()) {
       try {
-        status[name] = await service.testConnection() ? 'up' : 'down';
+        status[name] = (await service.testConnection()) ? 'up' : 'down';
       } catch (error) {
         status[name] = 'down';
       }
     }
+
     return status;
   }
 
@@ -137,6 +147,7 @@ export class ServiceLocator {
    */
   async getDetailedStatus(): Promise<{ [key: string]: ServiceStatus }> {
     const status: { [key: string]: ServiceStatus } = {};
+
     for (const [name, service] of this.services.entries()) {
       try {
         status[name] = await service.getDetailedStatus();
@@ -145,10 +156,11 @@ export class ServiceLocator {
           status: 'down',
           version: service.getVersion(),
           error: error.message,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       }
     }
+
     return status;
   }
 
@@ -171,6 +183,7 @@ export class ServiceLocator {
    */
   getInitializedService<T extends IService>(name: string): Promise<T> {
     const service = this.get<T>(name);
+
     return service.init().then(() => service);
   }
 }

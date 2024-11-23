@@ -1,7 +1,14 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import type { ErrorInfo, ReactNode } from 'react';
+import React, { Component } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 interface Props {
   children: ReactNode;
@@ -17,7 +24,7 @@ export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
-    errorInfo: null
+    errorInfo: null,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -52,11 +59,14 @@ export class ErrorBoundary extends Component<Props, State> {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 mb-4">
-                We're sorry for the inconvenience. Please try refreshing the page or contact support if the problem persists.
+                We're sorry for the inconvenience. Please try refreshing the
+                page or contact support if the problem persists.
               </p>
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <div className="bg-gray-100 p-4 rounded-md overflow-auto max-h-40">
-                  <p className="font-mono text-sm text-red-600">{this.state.error.toString()}</p>
+                  <p className="font-mono text-sm text-red-600">
+                    {this.state.error.toString()}
+                  </p>
                   {this.state.errorInfo && (
                     <pre className="mt-2 font-mono text-xs text-gray-600">
                       {this.state.errorInfo.componentStack}
@@ -69,9 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <Button variant="outline" onClick={this.handleReset}>
                 Try again
               </Button>
-              <Button onClick={this.handleReload}>
-                Reload page
-              </Button>
+              <Button onClick={this.handleReload}>Reload page</Button>
             </CardFooter>
           </Card>
         </div>
@@ -81,4 +89,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-

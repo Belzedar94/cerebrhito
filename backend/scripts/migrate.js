@@ -6,16 +6,18 @@ const { Pool } = require('pg');
 const pool = new Pool({
   connectionString: process.env.SUPABASE_DB_URL,
   ssl: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
 });
 
 async function migrate() {
   const client = await pool.connect();
+
   try {
     // Get list of migration files
     const migrationsDir = path.join(__dirname, '../src/db/migrations');
-    const files = fs.readdirSync(migrationsDir)
+    const files = fs
+      .readdirSync(migrationsDir)
       .filter(file => file.endsWith('.sql'))
       .sort();
 
@@ -29,9 +31,7 @@ async function migrate() {
     `);
 
     // Get executed migrations
-    const { rows: executedMigrations } = await client.query(
-      'SELECT name FROM migrations'
-    );
+    const { rows: executedMigrations } = await client.query('SELECT name FROM migrations');
     const executedMigrationNames = executedMigrations.map(row => row.name);
 
     // Execute pending migrations
@@ -39,13 +39,12 @@ async function migrate() {
       if (!executedMigrationNames.includes(file)) {
         console.log(`Executing migration: ${file}`);
         const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+
         await client.query('BEGIN');
+
         try {
           await client.query(sql);
-          await client.query(
-            'INSERT INTO migrations (name) VALUES ($1)',
-            [file]
-          );
+          await client.query('INSERT INTO migrations (name) VALUES ($1)', [file]);
           await client.query('COMMIT');
           console.log(`Migration ${file} executed successfully`);
         } catch (error) {
@@ -60,4 +59,6 @@ async function migrate() {
   }
 }
 
-migrate().catch(console.error).finally(() => pool.end());
+migrate()
+  .catch(console.error)
+  .finally(() => pool.end());

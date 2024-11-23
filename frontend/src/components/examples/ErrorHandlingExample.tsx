@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useError } from '@/hooks/useError';
 import { Button } from '@/components/ui/button';
+import { useError } from '@/hooks/useError';
 import { apiClient } from '@/lib/api';
 import { ErrorCode } from '@/lib/errors/types';
 
@@ -12,31 +12,36 @@ export function ErrorHandlingExample() {
 
   const simulateErrors = async () => {
     setLoading(true);
+
     try {
       // Simulate a network error
       await apiClient.get('/api/non-existent-endpoint');
     } catch (error) {
       handleError(error);
     }
+
     setLoading(false);
   };
 
   const simulateAuthError = async () => {
     setLoading(true);
+
     try {
       // Simulate an auth error
       handleError({
         code: ErrorCode.UNAUTHORIZED,
-        message: 'You must be logged in to access this resource'
+        message: 'You must be logged in to access this resource',
       });
     } catch (error) {
       handleError(error);
     }
+
     setLoading(false);
   };
 
   const simulateValidationError = async () => {
     setLoading(true);
+
     try {
       // Simulate a validation error
       handleError({
@@ -45,18 +50,20 @@ export function ErrorHandlingExample() {
         details: {
           fields: {
             email: 'Invalid email format',
-            password: 'Password must be at least 8 characters'
-          }
-        }
+            password: 'Password must be at least 8 characters',
+          },
+        },
       });
     } catch (error) {
       handleError(error);
     }
+
     setLoading(false);
   };
 
   const simulateAIError = async () => {
     setLoading(true);
+
     try {
       // Simulate an AI service error
       handleError({
@@ -64,12 +71,13 @@ export function ErrorHandlingExample() {
         message: 'Failed to generate AI response',
         details: {
           service: 'Groq',
-          error: 'Model not available'
-        }
+          error: 'Model not available',
+        },
       });
     } catch (error) {
       handleError(error);
     }
+
     setLoading(false);
   };
 
@@ -77,11 +85,7 @@ export function ErrorHandlingExample() {
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Error Handling Examples</h2>
       <div className="grid grid-cols-2 gap-4">
-        <Button
-          variant="outline"
-          onClick={simulateErrors}
-          disabled={loading}
-        >
+        <Button variant="outline" onClick={simulateErrors} disabled={loading}>
           Simulate Network Error
         </Button>
         <Button
@@ -98,11 +102,7 @@ export function ErrorHandlingExample() {
         >
           Simulate Validation Error
         </Button>
-        <Button
-          variant="outline"
-          onClick={simulateAIError}
-          disabled={loading}
-        >
+        <Button variant="outline" onClick={simulateAIError} disabled={loading}>
           Simulate AI Error
         </Button>
       </div>

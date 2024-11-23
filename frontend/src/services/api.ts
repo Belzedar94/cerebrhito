@@ -1,18 +1,20 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '@/store';
+import type { RootState } from '@/store';
 
 export const api = createApi({
-  baseQuery: fetchBaseQuery({ 
+  baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
     prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
+      const { token } = (getState() as RootState).auth;
+
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
+
       return headers;
     },
   }),
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     getActivities: builder.query<Activity[], void>({
       query: () => 'activities',
     }),
@@ -20,13 +22,16 @@ export const api = createApi({
       query: () => 'development/milestones',
     }),
     scheduleActivity: builder.mutation<ActivityLog, ScheduleActivityData>({
-      query: (data) => ({
+      query: data => ({
         url: 'activities/schedule',
         method: 'POST',
         body: data,
       }),
     }),
-    updateActivityLog: builder.mutation<ActivityLog, { logId: string; data: UpdateActivityLogData }>({
+    updateActivityLog: builder.mutation<
+      ActivityLog,
+      { logId: string; data: UpdateActivityLogData }
+    >({
       query: ({ logId, data }) => ({
         url: `activities/log/${logId}`,
         method: 'PUT',
@@ -34,13 +39,13 @@ export const api = createApi({
       }),
     }),
     getUpcomingActivities: builder.query<ActivityLog[], string>({
-      query: (childId) => `activities/child/${childId}/upcoming`,
+      query: childId => `activities/child/${childId}/upcoming`,
     }),
     getCompletedActivities: builder.query<ActivityLog[], string>({
-      query: (childId) => `activities/child/${childId}/completed`,
+      query: childId => `activities/child/${childId}/completed`,
     }),
     generateSuggestions: builder.query<Activity[], string>({
-      query: (childId) => `activities/child/${childId}/suggestions`,
+      query: childId => `activities/child/${childId}/suggestions`,
     }),
   }),
 });
@@ -54,4 +59,3 @@ export const {
   useGetCompletedActivitiesQuery,
   useGenerateSuggestionsQuery,
 } = api;
-

@@ -1,4 +1,5 @@
-import axios, { AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
 import { ErrorCode } from './errors/types';
 
 export const apiClient = axios.create({
@@ -11,9 +12,10 @@ export const apiClient = axios.create({
 
 // Request interceptor
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     // Add auth token
     const token = localStorage.getItem('token');
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,25 +25,25 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject({
       code: ErrorCode.NETWORK_ERROR,
       message: 'Failed to send request',
-      details: error
+      details: error,
     });
   }
 );
 
 // Response interceptor
 apiClient.interceptors.response.use(
-  (response) => response,
+  response => response,
   async (error: AxiosError) => {
     // Handle network errors
     if (!error.response) {
       return Promise.reject({
         code: ErrorCode.NETWORK_ERROR,
         message: 'Network error occurred',
-        details: error
+        details: error,
       });
     }
 
@@ -50,7 +52,7 @@ apiClient.interceptors.response.use(
       return Promise.reject({
         code: ErrorCode.SERVICE_UNAVAILABLE,
         message: 'Request timed out',
-        details: error
+        details: error,
       });
     }
 
@@ -59,7 +61,7 @@ apiClient.interceptors.response.use(
       return Promise.reject({
         code: ErrorCode.RATE_LIMIT_EXCEEDED,
         message: 'Too many requests',
-        details: error.response.data
+        details: error.response.data,
       });
     }
 

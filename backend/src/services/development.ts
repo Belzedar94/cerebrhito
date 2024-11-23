@@ -1,6 +1,6 @@
 import { DatabaseService } from './database';
 import { AIAssistantService } from './ai-assistant';
-import { Milestone } from '../types/database';
+import type { Milestone } from '../types/database';
 
 interface CreateMilestoneData {
   name: string;
@@ -49,6 +49,7 @@ export class DevelopmentService {
   async getMilestonesForChild(childId: string, category?: string): Promise<Milestone[]> {
     // Get child's age
     const child = await this.db.getChildById(childId);
+
     if (!child) {
       throw new Error('Child not found');
     }
@@ -66,9 +67,7 @@ export class DevelopmentService {
     );
 
     // Filter by category if provided
-    return category
-      ? milestones.filter((milestone) => milestone.category === category)
-      : milestones;
+    return category ? milestones.filter(milestone => milestone.category === category) : milestones;
   }
 
   /**
@@ -77,12 +76,14 @@ export class DevelopmentService {
   async trackMilestone(data: TrackMilestoneData) {
     // Verify child exists
     const child = await this.db.getChildById(data.childId);
+
     if (!child) {
       throw new Error('Child not found');
     }
 
     // Verify milestone exists and is age-appropriate
     const milestone = await this.db.getMilestoneById(data.milestoneId);
+
     if (!milestone) {
       throw new Error('Milestone not found');
     }
@@ -92,11 +93,8 @@ export class DevelopmentService {
         (1000 * 60 * 60 * 24 * 30.44)
     );
 
-    if (
-      ageInMonths < milestone.min_age_months - 3 ||
-      ageInMonths > milestone.max_age_months + 3
-    ) {
-      throw new Error('Milestone not suitable for child\'s age');
+    if (ageInMonths < milestone.min_age_months - 3 || ageInMonths > milestone.max_age_months + 3) {
+      throw new Error("Milestone not suitable for child's age");
     }
 
     // Create or update milestone tracking
@@ -119,7 +117,7 @@ export class DevelopmentService {
 
       // Update tracking with AI feedback
       await this.db.updateMilestoneTracking(tracking.id, {
-        notes: data.notes 
+        notes: data.notes
           ? `${data.notes}\n\nAI Feedback: ${feedback.text}`
           : `AI Feedback: ${feedback.text}`,
       });
@@ -147,6 +145,7 @@ export class DevelopmentService {
    */
   async generateDevelopmentReport(childId: string): Promise<string> {
     const child = await this.db.getChildById(childId);
+
     if (!child) {
       throw new Error('Child not found');
     }
@@ -158,27 +157,23 @@ export class DevelopmentService {
     ]);
 
     // Generate prompt for AI
-    const prompt = `Please generate a comprehensive development report for a child who is ${
-      Math.floor(
-        (new Date().getTime() - new Date(child.date_of_birth).getTime()) /
-          (1000 * 60 * 60 * 24 * 30.44)
-      )
-    } months old.
+    const prompt = `Please generate a comprehensive development report for a child who is ${Math.floor(
+      (new Date().getTime() - new Date(child.date_of_birth).getTime()) /
+        (1000 * 60 * 60 * 24 * 30.44)
+    )} months old.
 
 Achieved Milestones:
 ${achieved
   .map(
-    (t) =>
-      `- ${t.milestone.name} (${t.milestone.category}) - Achieved on ${
-        new Date(t.achieved_at!).toLocaleDateString()
-      }`
+    t =>
+      `- ${t.milestone.name} (${t.milestone.category}) - Achieved on ${new Date(
+        t.achieved_at!
+      ).toLocaleDateString()}`
   )
   .join('\n')}
 
 Upcoming Milestones:
-${upcoming
-  .map((m) => `- ${m.name} (${m.category})`)
-  .join('\n')}
+${upcoming.map(m => `- ${m.name} (${m.category})`).join('\n')}
 
 Please include:
 1. Overall development assessment
@@ -188,11 +183,7 @@ Please include:
 5. When to consult healthcare providers`;
 
     // Get AI report
-    const response = await this.aiService.processMessage(
-      child.user_id,
-      childId,
-      prompt
-    );
+    const response = await this.aiService.processMessage(child.user_id, childId, prompt);
 
     return response.text;
   }
@@ -202,6 +193,7 @@ Please include:
    */
   async getDevelopmentStats(childId: string) {
     const child = await this.db.getChildById(childId);
+
     if (!child) {
       throw new Error('Child not found');
     }
@@ -218,7 +210,7 @@ Please include:
 
     const categories = await this.db.getMilestoneCategories();
     const categoryStats = await Promise.all(
-      categories.map(async (category) => {
+      categories.map(async category => {
         const [categoryAchieved, categoryTotal] = await Promise.all([
           this.db.getAchievedMilestoneCountByCategory(childId, category),
           this.db.getTotalMilestoneCountByCategory(ageInMonths, category),

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { validate, validateRequest, validateFileUpload } from '../middleware/validation';
 import { z } from 'zod';
 import { AppError } from '../errors/types';
@@ -18,7 +18,7 @@ function createMockReq(overrides = {}): MockRequest {
     body: {},
     query: {},
     params: {},
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -38,16 +38,19 @@ function createMockRes(): MockResponse {
     body: null,
     status(code: number) {
       this.statusCode = code;
+
       return this;
     },
     json(data: any) {
       this.body = data;
+
       return this;
     },
     setHeader(name: string, value: string) {
       this.headers[name] = value;
+
       return this;
-    }
+    },
   };
 
   return res;
@@ -68,14 +71,14 @@ describe('Validation Middleware', () => {
     const schema = z.object({
       email: z.string().email(),
       age: z.number().min(18),
-      name: z.string().min(2)
+      name: z.string().min(2),
     });
 
     it('should pass validation for valid data', async () => {
       req.body = {
         email: 'test@example.com',
         age: 25,
-        name: 'John'
+        name: 'John',
       };
 
       await validate(schema)(req as Request, res as Response, next);
@@ -89,7 +92,7 @@ describe('Validation Middleware', () => {
         email: 'test@example.com',
         age: 25,
         name: 'John',
-        unknown: 'field'
+        unknown: 'field',
       };
 
       await validate(schema)(req as Request, res as Response, next);
@@ -102,7 +105,7 @@ describe('Validation Middleware', () => {
       req.body = {
         email: 'invalid-email',
         age: 16,
-        name: 'J'
+        name: 'J',
       };
 
       await validate(schema)(req as Request, res as Response, next);
@@ -115,12 +118,12 @@ describe('Validation Middleware', () => {
     it('should validate query parameters', async () => {
       const querySchema = z.object({
         page: z.string().regex(/^\d+$/).transform(Number),
-        limit: z.string().regex(/^\d+$/).transform(Number)
+        limit: z.string().regex(/^\d+$/).transform(Number),
       });
 
       req.query = {
         page: '1',
-        limit: '10'
+        limit: '10',
       };
 
       await validate(querySchema, 'query')(req as Request, res as Response, next);
@@ -132,11 +135,11 @@ describe('Validation Middleware', () => {
 
     it('should validate path parameters', async () => {
       const paramsSchema = z.object({
-        id: z.string().uuid()
+        id: z.string().uuid(),
       });
 
       req.params = {
-        id: '123e4567-e89b-12d3-a456-426614174000'
+        id: '123e4567-e89b-12d3-a456-426614174000',
       };
 
       await validate(paramsSchema, 'params')(req as Request, res as Response, next);
@@ -148,14 +151,14 @@ describe('Validation Middleware', () => {
   describe('validateRequest', () => {
     const schemas = {
       body: z.object({
-        name: z.string().min(2)
+        name: z.string().min(2),
       }),
       query: z.object({
-        sort: z.enum(['asc', 'desc'])
+        sort: z.enum(['asc', 'desc']),
       }),
       params: z.object({
-        id: z.string().uuid()
-      })
+        id: z.string().uuid(),
+      }),
     };
 
     it('should validate multiple parts of the request', async () => {
@@ -184,11 +187,7 @@ describe('Validation Middleware', () => {
       req.body = { name: 'John' };
       req.query = { invalid: 'field' };
 
-      await validateRequest({ body: schemas.body })(
-        req as Request,
-        res as Response,
-        next
-      );
+      await validateRequest({ body: schemas.body })(req as Request, res as Response, next);
 
       expect(next).toHaveBeenCalled();
       expect(next).not.toHaveBeenCalledWith(expect.any(AppError));
@@ -203,14 +202,10 @@ describe('Validation Middleware', () => {
       req.file = {
         mimetype: 'image/jpeg',
         size: maxSize / 2,
-        originalname: 'test.jpg'
+        originalname: 'test.jpg',
       } as any;
 
-      validateFileUpload(allowedTypes, maxSize)(
-        req as Request,
-        res as Response,
-        next
-      );
+      validateFileUpload(allowedTypes, maxSize)(req as Request, res as Response, next);
 
       expect(next).toHaveBeenCalled();
       expect(next).not.toHaveBeenCalledWith(expect.any(AppError));
@@ -222,21 +217,17 @@ describe('Validation Middleware', () => {
           {
             mimetype: 'image/jpeg',
             size: maxSize / 2,
-            originalname: 'test1.jpg'
+            originalname: 'test1.jpg',
           },
           {
             mimetype: 'image/png',
             size: maxSize / 2,
-            originalname: 'test2.png'
-          }
-        ]
+            originalname: 'test2.png',
+          },
+        ],
       } as any;
 
-      validateFileUpload(allowedTypes, maxSize)(
-        req as Request,
-        res as Response,
-        next
-      );
+      validateFileUpload(allowedTypes, maxSize)(req as Request, res as Response, next);
 
       expect(next).toHaveBeenCalled();
       expect(next).not.toHaveBeenCalledWith(expect.any(AppError));
@@ -246,14 +237,10 @@ describe('Validation Middleware', () => {
       req.file = {
         mimetype: 'application/pdf',
         size: maxSize / 2,
-        originalname: 'test.pdf'
+        originalname: 'test.pdf',
       } as any;
 
-      validateFileUpload(allowedTypes, maxSize)(
-        req as Request,
-        res as Response,
-        next
-      );
+      validateFileUpload(allowedTypes, maxSize)(req as Request, res as Response, next);
 
       expect(next).toHaveBeenCalledWith(expect.any(AppError));
       expect(next.mock.calls[0][0].code).toBe('VALIDATION_ERROR');
@@ -264,14 +251,10 @@ describe('Validation Middleware', () => {
       req.file = {
         mimetype: 'image/jpeg',
         size: maxSize * 2,
-        originalname: 'test.jpg'
+        originalname: 'test.jpg',
       } as any;
 
-      validateFileUpload(allowedTypes, maxSize)(
-        req as Request,
-        res as Response,
-        next
-      );
+      validateFileUpload(allowedTypes, maxSize)(req as Request, res as Response, next);
 
       expect(next).toHaveBeenCalledWith(expect.any(AppError));
       expect(next.mock.calls[0][0].code).toBe('VALIDATION_ERROR');
@@ -279,11 +262,7 @@ describe('Validation Middleware', () => {
     });
 
     it('should fail if no file is uploaded', () => {
-      validateFileUpload(allowedTypes, maxSize)(
-        req as Request,
-        res as Response,
-        next
-      );
+      validateFileUpload(allowedTypes, maxSize)(req as Request, res as Response, next);
 
       expect(next).toHaveBeenCalledWith(expect.any(AppError));
       expect(next.mock.calls[0][0].code).toBe('VALIDATION_ERROR');

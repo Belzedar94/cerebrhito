@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { AppError, ErrorCode } from '../errors/types';
 import { logger } from '../utils/logger';
 import { ZodError } from 'zod';
@@ -10,13 +10,8 @@ interface ErrorResponse {
   requestId?: string;
 }
 
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const requestId = req.headers['x-request-id'] as string || generateRequestId();
+export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
+  const requestId = (req.headers['x-request-id'] as string) || generateRequestId();
   const errorContext = {
     requestId,
     name: err.name,
@@ -30,7 +25,7 @@ export const errorHandler = (
     query: req.query,
     body: sanitizeRequestBody(req.body),
     headers: sanitizeHeaders(req.headers),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   let errorResponse: ErrorResponse;
@@ -42,8 +37,9 @@ export const errorHandler = (
       code: err.code,
       message: err.message,
       details: err.details,
-      requestId
+      requestId,
     };
+
     return res.status(err.status).json(errorResponse);
   }
 
@@ -54,8 +50,9 @@ export const errorHandler = (
       code: ErrorCode.VALIDATION_ERROR,
       message: 'Validation error',
       details: err.errors,
-      requestId
+      requestId,
     };
+
     return res.status(400).json(errorResponse);
   }
 
@@ -66,8 +63,9 @@ export const errorHandler = (
       code: ErrorCode.INVALID_TOKEN,
       message: 'Invalid token',
       details: err.message,
-      requestId
+      requestId,
     };
+
     return res.status(401).json(errorResponse);
   }
 
@@ -77,8 +75,9 @@ export const errorHandler = (
       code: ErrorCode.TOKEN_EXPIRED,
       message: 'Token has expired',
       details: err.message,
-      requestId
+      requestId,
     };
+
     return res.status(401).json(errorResponse);
   }
 
@@ -89,8 +88,9 @@ export const errorHandler = (
       code: ErrorCode.DATABASE_ERROR,
       message: 'Database operation failed',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined,
-      requestId
+      requestId,
     };
+
     return res.status(503).json(errorResponse);
   }
 
@@ -101,8 +101,9 @@ export const errorHandler = (
       code: ErrorCode.RATE_LIMIT_EXCEEDED,
       message: 'Too many requests',
       details: err.message,
-      requestId
+      requestId,
     };
+
     return res.status(429).json(errorResponse);
   }
 
@@ -113,8 +114,9 @@ export const errorHandler = (
       code: ErrorCode.GROQ_API_ERROR,
       message: 'AI service error',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined,
-      requestId
+      requestId,
     };
+
     return res.status(502).json(errorResponse);
   }
 
@@ -124,8 +126,9 @@ export const errorHandler = (
       code: ErrorCode.ELEVENLABS_API_ERROR,
       message: 'Text-to-speech service error',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined,
-      requestId
+      requestId,
     };
+
     return res.status(502).json(errorResponse);
   }
 
@@ -135,7 +138,7 @@ export const errorHandler = (
     code: ErrorCode.INTERNAL_ERROR,
     message: 'An unexpected error occurred',
     details: process.env.NODE_ENV === 'development' ? err.message : undefined,
-    requestId
+    requestId,
   };
   res.status(500).json(errorResponse);
 };
@@ -146,29 +149,35 @@ function generateRequestId(): string {
 }
 
 function sanitizeRequestBody(body: any): any {
-  if (!body) return body;
+  if (!body) {
+    return body;
+  }
+
   const sanitized = { ...body };
   const sensitiveFields = ['password', 'token', 'apiKey', 'secret'];
-  
+
   sensitiveFields.forEach(field => {
     if (field in sanitized) {
       sanitized[field] = '[REDACTED]';
     }
   });
-  
+
   return sanitized;
 }
 
 function sanitizeHeaders(headers: any): any {
-  if (!headers) return headers;
+  if (!headers) {
+    return headers;
+  }
+
   const sanitized = { ...headers };
   const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key'];
-  
+
   sensitiveHeaders.forEach(header => {
     if (header in sanitized) {
       sanitized[header] = '[REDACTED]';
     }
   });
-  
+
   return sanitized;
 }

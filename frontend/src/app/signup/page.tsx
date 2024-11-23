@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/lib/auth/AuthContext';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
@@ -14,6 +14,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await signUp({ email, password, fullName, role });
     } catch (err) {
@@ -55,7 +56,7 @@ export default function SignUp() {
                 type="text"
                 required
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={e => setFullName(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Nombre completo"
               />
@@ -71,7 +72,7 @@ export default function SignUp() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Correo electrónico"
               />
@@ -87,7 +88,7 @@ export default function SignUp() {
                 autoComplete="new-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Contraseña"
               />
@@ -101,7 +102,9 @@ export default function SignUp() {
                 name="role"
                 required
                 value={role}
-                onChange={(e) => setRole(e.target.value as 'parent' | 'professional')}
+                onChange={e =>
+                  setRole(e.target.value as 'parent' | 'professional')
+                }
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
               >
                 <option value="parent">Padre/Madre</option>

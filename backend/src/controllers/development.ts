@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { DevelopmentService } from '../services/development';
 
@@ -56,7 +56,7 @@ export class DevelopmentController {
    */
   getMilestonesForChild = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const { category } = req.query;
 
       const milestones = await this.developmentService.getMilestonesForChild(
@@ -98,8 +98,9 @@ export class DevelopmentController {
    */
   getAchievedMilestones = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const milestones = await this.developmentService.getAchievedMilestones(childId);
+
       res.json(milestones);
     } catch (error) {
       console.error('Get achieved milestones error:', error);
@@ -112,8 +113,9 @@ export class DevelopmentController {
    */
   getUpcomingMilestones = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const milestones = await this.developmentService.getUpcomingMilestones(childId);
+
       res.json(milestones);
     } catch (error) {
       console.error('Get upcoming milestones error:', error);
@@ -126,8 +128,9 @@ export class DevelopmentController {
    */
   generateReport = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const report = await this.developmentService.generateDevelopmentReport(childId);
+
       res.json({ report });
     } catch (error) {
       console.error('Generate report error:', error);
@@ -140,8 +143,9 @@ export class DevelopmentController {
    */
   getDevelopmentStats = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const stats = await this.developmentService.getDevelopmentStats(childId);
+
       res.json(stats);
     } catch (error) {
       console.error('Get development stats error:', error);

@@ -1,15 +1,15 @@
 {
-    "keep": {
-        "days": true,
-        "amount": 30
-    },
-    "auditLog": "/workspace/cerebrhito/backend/logs/.de325fae643156d51d87281fb1843f6264b0d023-audit.json",
-    "files": [
-        {
-            "date": 1732349712515,
-            "name": "/workspace/cerebrhito/backend/logs/error-2024-11-23.log",
-            "hash": "8625fc07eb2ffde089c04f695f72e3756d9e4c4a65e200cfcc3766d21f2a6135"
-        }
-    ],
-    "hashType": "sha256"
+  "keep": {
+    "days": true,
+    "amount": 30
+  },
+  "auditLog": "/workspace/cerebrhito/backend/logs/.de325fae643156d51d87281fb1843f6264b0d023-audit.json",
+  "files": [
+    {
+      "date": 1732349712515,
+      "name": "/workspace/cerebrhito/backend/logs/error-2024-11-23.log",
+      "hash": "8625fc07eb2ffde089c04f695f72e3756d9e4c4a65e200cfcc3766d21f2a6135"
+    }
+  ],
+  "hashType": "sha256"
 }

@@ -1,14 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/lib/auth/AuthContext';
 import { ActivityCalendar } from '@/components/activities/ActivityCalendar';
 import { ActivityScheduler } from '@/components/activities/ActivityScheduler';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function ActivitiesPage() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
@@ -30,7 +36,10 @@ export default function ActivitiesPage() {
             <CardTitle>Select a child</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select onValueChange={(value) => setSelectedChild(value)} value={selectedChild || undefined}>
+            <Select
+              onValueChange={value => setSelectedChild(value)}
+              value={selectedChild || undefined}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a child" />
               </SelectTrigger>
@@ -74,4 +83,3 @@ export default function ActivitiesPage() {
     </MainLayout>
   );
 }
-

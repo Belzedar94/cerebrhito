@@ -4,25 +4,40 @@ import { z } from 'zod';
 // Default sanitization options
 const defaultOptions: sanitizeHtml.IOptions = {
   allowedTags: [
-    'b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'a'
+    'b',
+    'i',
+    'em',
+    'strong',
+    'p',
+    'br',
+    'ul',
+    'ol',
+    'li',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'blockquote',
+    'a',
   ],
   allowedAttributes: {
-    'a': ['href', 'title', 'target', 'rel'],
-    '*': ['class']
+    a: ['href', 'title', 'target', 'rel'],
+    '*': ['class'],
   },
   allowedSchemes: ['http', 'https', 'mailto'],
   transformTags: {
-    'a': (tagName, attribs) => ({
+    a: (tagName, attribs) => ({
       tagName,
       attribs: {
         ...attribs,
         target: '_blank',
-        rel: 'noopener noreferrer'
-      }
-    })
+        rel: 'noopener noreferrer',
+      },
+    }),
   },
-  textFilter: (text) => text.replace(/\s+/g, ' ').trim(),
+  textFilter: text => text.replace(/\s+/g, ' ').trim(),
   exclusiveFilter: frame => false,
   nonTextTags: ['script', 'style', 'textarea', 'option'],
   selfClosing: ['br', 'hr', 'img', 'input', 'meta', 'link'],
@@ -30,18 +45,18 @@ const defaultOptions: sanitizeHtml.IOptions = {
   parser: {
     lowerCaseTags: true,
     lowerCaseAttributeNames: true,
-    decodeEntities: true
-  }
+    decodeEntities: true,
+  },
 };
 
 // Strict sanitization options (text only)
 const strictOptions: sanitizeHtml.IOptions = {
   allowedTags: [],
   allowedAttributes: {},
-  textFilter: (text) => text.replace(/\s+/g, ' ').trim(),
+  textFilter: text => text.replace(/\s+/g, ' ').trim(),
   parser: {
-    decodeEntities: true
-  }
+    decodeEntities: true,
+  },
 };
 
 /**
@@ -94,8 +109,8 @@ export function sanitizeObject<T extends object>(
         typeof item === 'string'
           ? sanitizeContent(item, options)
           : item instanceof Object
-          ? sanitizeObject(item, options)
-          : item
+            ? sanitizeObject(item, options)
+            : item
       );
     } else if (value instanceof Object) {
       (result as any)[key] = sanitizeObject(value, options);
@@ -130,33 +145,59 @@ export const sanitizeOptions = {
     ...defaultOptions,
     allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br', 'a'],
     allowedAttributes: {
-      'a': ['href', 'title', 'target']
-    }
+      a: ['href', 'title', 'target'],
+    },
   },
 
   // For activity descriptions (allow more formatting)
   activity: {
     ...defaultOptions,
     allowedTags: [
-      'b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li',
-      'h1', 'h2', 'h3', 'blockquote', 'a', 'img'
+      'b',
+      'i',
+      'em',
+      'strong',
+      'p',
+      'br',
+      'ul',
+      'ol',
+      'li',
+      'h1',
+      'h2',
+      'h3',
+      'blockquote',
+      'a',
+      'img',
     ],
     allowedAttributes: {
       ...defaultOptions.allowedAttributes,
-      'img': ['src', 'alt', 'title']
-    }
+      img: ['src', 'alt', 'title'],
+    },
   },
 
   // For professional notes (allow medical terminology)
   professional: {
     ...defaultOptions,
     allowedTags: [
-      'b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li',
-      'h1', 'h2', 'h3', 'sup', 'sub', 'abbr'
+      'b',
+      'i',
+      'em',
+      'strong',
+      'p',
+      'br',
+      'ul',
+      'ol',
+      'li',
+      'h1',
+      'h2',
+      'h3',
+      'sup',
+      'sub',
+      'abbr',
     ],
     allowedAttributes: {
       ...defaultOptions.allowedAttributes,
-      'abbr': ['title']
-    }
-  }
+      abbr: ['title'],
+    },
+  },
 };

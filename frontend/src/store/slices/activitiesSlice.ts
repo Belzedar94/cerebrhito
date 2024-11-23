@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '@/services/api';
 
 interface Activity {
@@ -49,15 +49,20 @@ const initialState: ActivitiesState = {
   error: null,
 };
 
-export const fetchActivities = createAsyncThunk('activities/fetchActivities', async () => {
-  const response = await api.get('/api/activities');
-  return response.data;
-});
+export const fetchActivities = createAsyncThunk(
+  'activities/fetchActivities',
+  async () => {
+    const response = await api.get('/api/activities');
+
+    return response.data;
+  }
+);
 
 export const fetchActivityById = createAsyncThunk(
   'activities/fetchActivityById',
   async (activityId: string) => {
     const response = await api.get(`/api/activities/${activityId}`);
+
     return response.data;
   }
 );
@@ -66,6 +71,7 @@ export const createActivity = createAsyncThunk(
   'activities/createActivity',
   async (activityData: Omit<Activity, 'id' | 'created_at' | 'updated_at'>) => {
     const response = await api.post('/api/activities', activityData);
+
     return response.data;
   }
 );
@@ -74,6 +80,7 @@ export const fetchActivityLogs = createAsyncThunk(
   'activities/fetchActivityLogs',
   async (childId: string) => {
     const response = await api.get(`/api/activities/child/${childId}`);
+
     return { childId, logs: response.data };
   }
 );
@@ -82,6 +89,7 @@ export const logActivity = createAsyncThunk(
   'activities/logActivity',
   async (logData: Omit<ActivityLog, 'id' | 'created_at'>) => {
     const response = await api.post('/api/activities/log', logData);
+
     return response.data;
   }
 );
@@ -89,7 +97,10 @@ export const logActivity = createAsyncThunk(
 export const fetchSuggestedActivities = createAsyncThunk(
   'activities/fetchSuggestedActivities',
   async (childId: string) => {
-    const response = await api.get(`/api/activities/child/${childId}/suggestions`);
+    const response = await api.get(
+      `/api/activities/child/${childId}/suggestions`
+    );
+
     return response.data;
   }
 );
@@ -99,19 +110,21 @@ const activitiesSlice = createSlice({
   initialState,
   reducers: {
     selectActivity: (state, action) => {
-      state.selectedActivity = state.activities.find(activity => activity.id === action.payload) || null;
+      state.selectedActivity =
+        state.activities.find(activity => activity.id === action.payload) ||
+        null;
     },
-    clearSelectedActivity: (state) => {
+    clearSelectedActivity: state => {
       state.selectedActivity = null;
     },
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     // Fetch Activities
     builder
-      .addCase(fetchActivities.pending, (state) => {
+      .addCase(fetchActivities.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -126,14 +139,17 @@ const activitiesSlice = createSlice({
 
     // Fetch Activity by ID
     builder
-      .addCase(fetchActivityById.pending, (state) => {
+      .addCase(fetchActivityById.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchActivityById.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedActivity = action.payload;
-        const index = state.activities.findIndex(activity => activity.id === action.payload.id);
+        const index = state.activities.findIndex(
+          activity => activity.id === action.payload.id
+        );
+
         if (index !== -1) {
           state.activities[index] = action.payload;
         } else {
@@ -147,7 +163,7 @@ const activitiesSlice = createSlice({
 
     // Create Activity
     builder
-      .addCase(createActivity.pending, (state) => {
+      .addCase(createActivity.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -163,7 +179,7 @@ const activitiesSlice = createSlice({
 
     // Fetch Activity Logs
     builder
-      .addCase(fetchActivityLogs.pending, (state) => {
+      .addCase(fetchActivityLogs.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -178,13 +194,14 @@ const activitiesSlice = createSlice({
 
     // Log Activity
     builder
-      .addCase(logActivity.pending, (state) => {
+      .addCase(logActivity.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(logActivity.fulfilled, (state, action) => {
         state.loading = false;
         const logs = state.activityLogs[action.payload.child_id] || [];
+
         state.activityLogs[action.payload.child_id] = [...logs, action.payload];
       })
       .addCase(logActivity.rejected, (state, action) => {
@@ -194,7 +211,7 @@ const activitiesSlice = createSlice({
 
     // Fetch Suggested Activities
     builder
-      .addCase(fetchSuggestedActivities.pending, (state) => {
+      .addCase(fetchSuggestedActivities.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -204,10 +221,12 @@ const activitiesSlice = createSlice({
       })
       .addCase(fetchSuggestedActivities.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch suggested activities';
+        state.error =
+          action.error.message || 'Failed to fetch suggested activities';
       });
   },
 });
 
-export const { selectActivity, clearSelectedActivity, clearError } = activitiesSlice.actions;
+export const { selectActivity, clearSelectedActivity, clearError } =
+  activitiesSlice.actions;
 export default activitiesSlice.reducer;

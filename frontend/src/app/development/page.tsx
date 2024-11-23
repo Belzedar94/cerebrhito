@@ -1,16 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/auth/AuthContext';
-import { useDevelopment } from '@/hooks/useDevelopment';
-import { MilestoneTracker } from '@/components/development/MilestoneTracker';
-import { DevelopmentStats } from '@/components/development/DevelopmentStats';
-import { DevelopmentReport } from '@/components/development/DevelopmentReport';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { DevelopmentReport } from '@/components/development/DevelopmentReport';
+import { DevelopmentStats } from '@/components/development/DevelopmentStats';
+import { MilestoneTracker } from '@/components/development/MilestoneTracker';
+import { useDevelopment } from '@/hooks/useDevelopment';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function DevelopmentPage() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
-  const [view, setView] = useState<'milestones' | 'stats' | 'report'>('milestones');
+  const [view, setView] = useState<'milestones' | 'stats' | 'report'>(
+    'milestones'
+  );
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,18 +24,22 @@ export default function DevelopmentPage() {
   // Redirect to login if not authenticated
   if (!authLoading && !user) {
     router.push('/signin');
+
     return null;
   }
 
   // Load development stats when child is selected
   useEffect(() => {
     const loadStats = async () => {
-      if (!selectedChild) return;
+      if (!selectedChild) {
+        return;
+      }
 
       try {
         setError(null);
         setLoading(true);
         const data = await getDevelopmentStats(selectedChild);
+
         setStats(data);
       } catch (err) {
         setError((err as Error).message);
@@ -66,13 +72,16 @@ export default function DevelopmentPage() {
 
         {/* Child selector */}
         <div className="mb-8">
-          <label htmlFor="child" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="child"
+            className="block text-sm font-medium text-gray-700"
+          >
             Selecciona un hijo
           </label>
           <select
             id="child"
             value={selectedChild || ''}
-            onChange={(e) => setSelectedChild(e.target.value || null)}
+            onChange={e => setSelectedChild(e.target.value || null)}
             className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
           >
             <option value="">Selecciona un hijo</option>

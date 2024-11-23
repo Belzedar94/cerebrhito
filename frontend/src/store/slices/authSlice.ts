@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '@/services/api';
 
 interface User {
@@ -29,7 +29,9 @@ export const signIn = createAsyncThunk(
   async (credentials: { email: string; password: string }) => {
     const response = await api.post('/api/auth/signin', credentials);
     const { token, user } = response.data;
+
     localStorage.setItem('token', token);
+
     return { token, user };
   }
 );
@@ -46,7 +48,9 @@ export const signUp = createAsyncThunk(
   }) => {
     const response = await api.post('/api/auth/signup', userData);
     const { token, user } = response.data;
+
     localStorage.setItem('token', token);
+
     return { token, user };
   }
 );
@@ -60,6 +64,7 @@ export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
   async (userData: Partial<User>) => {
     const response = await api.put('/api/auth/profile', userData);
+
     return response.data;
   }
 );
@@ -68,14 +73,14 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     // Sign In
     builder
-      .addCase(signIn.pending, (state) => {
+      .addCase(signIn.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -91,7 +96,7 @@ const authSlice = createSlice({
 
     // Sign Up
     builder
-      .addCase(signUp.pending, (state) => {
+      .addCase(signUp.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -106,15 +111,14 @@ const authSlice = createSlice({
       });
 
     // Sign Out
-    builder
-      .addCase(signOut.fulfilled, (state) => {
-        state.user = null;
-        state.token = null;
-      });
+    builder.addCase(signOut.fulfilled, state => {
+      state.user = null;
+      state.token = null;
+    });
 
     // Update Profile
     builder
-      .addCase(updateProfile.pending, (state) => {
+      .addCase(updateProfile.pending, state => {
         state.loading = true;
         state.error = null;
       })

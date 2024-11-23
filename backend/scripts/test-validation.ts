@@ -10,7 +10,7 @@ import {
   updatePasswordSchema,
   resetPasswordSchema,
   updateProfileSchema,
-  childSchema
+  childSchema,
 } from '../src/validation/schemas';
 
 // Test data
@@ -23,9 +23,9 @@ const testCases = {
         email: 'parent@example.com',
         password: 'Test123!@#',
         name: 'John Smith',
-        role: 'parent'
+        role: 'parent',
       },
-      shouldPass: true
+      shouldPass: true,
     },
     {
       name: 'Valid professional signup',
@@ -35,9 +35,9 @@ const testCases = {
         name: 'Jane Smith',
         role: 'professional',
         specialization: 'Pediatrician',
-        license_number: 'MED-12345'
+        license_number: 'MED-12345',
       },
-      shouldPass: true
+      shouldPass: true,
     },
     {
       name: 'Invalid email',
@@ -45,9 +45,9 @@ const testCases = {
         email: 'invalid-email',
         password: 'Test123!@#',
         name: 'John Smith',
-        role: 'parent'
+        role: 'parent',
       },
-      shouldPass: false
+      shouldPass: false,
     },
     {
       name: 'Weak password',
@@ -55,10 +55,10 @@ const testCases = {
         email: 'parent@example.com',
         password: 'weak',
         name: 'John Smith',
-        role: 'parent'
+        role: 'parent',
       },
-      shouldPass: false
-    }
+      shouldPass: false,
+    },
   ],
 
   // Child test cases
@@ -73,19 +73,19 @@ const testCases = {
         medical_conditions: ['Asthma'],
         allergies: ['Peanuts'],
         primary_language: 'English',
-        additional_languages: ['Spanish']
+        additional_languages: ['Spanish'],
       },
-      shouldPass: true
+      shouldPass: true,
     },
     {
       name: 'Invalid birth date (future)',
       data: {
         name: 'Bob Smith',
         birth_date: new Date(Date.now() + 86400000).toISOString(),
-        gender: 'male'
+        gender: 'male',
       },
-      shouldPass: false
-    }
+      shouldPass: false,
+    },
   ],
 
   // Activity test cases
@@ -106,9 +106,9 @@ const testCases = {
         supervision_required: true,
         created_by: '123e4567-e89b-12d3-a456-426614174000',
         last_modified_by: '123e4567-e89b-12d3-a456-426614174000',
-        status: 'draft'
+        status: 'draft',
       },
-      shouldPass: true
+      shouldPass: true,
     },
     {
       name: 'Invalid duration',
@@ -123,10 +123,10 @@ const testCases = {
         difficulty_level: 'easy',
         indoor: true,
         supervision_required: true,
-        created_by: '123e4567-e89b-12d3-a456-426614174000'
+        created_by: '123e4567-e89b-12d3-a456-426614174000',
       },
-      shouldPass: false
-    }
+      shouldPass: false,
+    },
   ],
 
   // Milestone test cases
@@ -143,17 +143,17 @@ const testCases = {
         indicators: [
           'Stands independently',
           'Takes steps while holding furniture',
-          'Takes independent steps'
+          'Takes independent steps',
         ],
         typical_age_range: {
           min_months: 9,
-          max_months: 18
+          max_months: 18,
         },
         status: 'published',
         created_by: '123e4567-e89b-12d3-a456-426614174000',
-        last_modified_by: '123e4567-e89b-12d3-a456-426614174000'
+        last_modified_by: '123e4567-e89b-12d3-a456-426614174000',
       },
-      shouldPass: true
+      shouldPass: true,
     },
     {
       name: 'Invalid age range',
@@ -165,10 +165,10 @@ const testCases = {
         min_age_months: 24,
         max_age_months: 12,
         indicators: ['Test indicator'],
-        created_by: '123e4567-e89b-12d3-a456-426614174000'
+        created_by: '123e4567-e89b-12d3-a456-426614174000',
       },
-      shouldPass: false
-    }
+      shouldPass: false,
+    },
   ],
 
   // AI message test cases
@@ -181,20 +181,20 @@ const testCases = {
         context: {
           child_age_months: 24,
           language: 'en-US',
-          response_format: 'text'
-        }
+          response_format: 'text',
+        },
       },
-      shouldPass: true
+      shouldPass: true,
     },
     {
       name: 'Message too long',
       data: {
         message: 'a'.repeat(1001),
-        child_id: '123e4567-e89b-12d3-a456-426614174000'
+        child_id: '123e4567-e89b-12d3-a456-426614174000',
       },
-      shouldPass: false
-    }
-  ]
+      shouldPass: false,
+    },
+  ],
 };
 
 // Test runner
@@ -202,7 +202,7 @@ async function runTests() {
   const results = {
     passed: 0,
     failed: 0,
-    details: [] as any[]
+    details: [] as any[],
   };
 
   for (const [schemaName, cases] of Object.entries(testCases)) {
@@ -216,14 +216,16 @@ async function runTests() {
           child: childSchema,
           activity: activitySchema,
           milestone: milestoneSchema,
-          aiMessage: aiMessageSchema
+          aiMessage: aiMessageSchema,
         };
         const schema = schemas[schemaName];
+
         if (!schema) {
           throw new Error(`Schema ${schemaName} not found`);
         }
+
         await schema.parseAsync(testCase.data);
-        
+
         if (testCase.shouldPass) {
           console.log(`✅ PASS: ${testCase.name}`);
           results.passed++;
@@ -231,12 +233,12 @@ async function runTests() {
           console.log(`❌ FAIL: ${testCase.name} (Expected to fail but passed)`);
           results.failed++;
         }
-        
+
         results.details.push({
           schema: schemaName,
           name: testCase.name,
           result: testCase.shouldPass ? 'pass' : 'unexpected pass',
-          error: null
+          error: null,
         });
       } catch (error) {
         if (!testCase.shouldPass) {
@@ -244,19 +246,21 @@ async function runTests() {
           results.passed++;
         } else {
           console.log(`❌ FAIL: ${testCase.name}`);
+
           if (error instanceof Error) {
             console.log('Error:', error.message);
           } else {
             console.log('Error:', error);
           }
+
           results.failed++;
         }
-        
+
         results.details.push({
           schema: schemaName,
           name: testCase.name,
           result: testCase.shouldPass ? 'fail' : 'expected fail',
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }
@@ -267,7 +271,7 @@ async function runTests() {
   console.log(`Total tests: ${results.passed + results.failed}`);
   console.log(`Passed: ${results.passed}`);
   console.log(`Failed: ${results.failed}`);
-  
+
   return results;
 }
 

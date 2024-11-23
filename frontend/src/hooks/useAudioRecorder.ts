@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 interface UseAudioRecorderReturn {
   isRecording: boolean;
@@ -9,7 +9,9 @@ interface UseAudioRecorderReturn {
 }
 
 export function useAudioRecorder(): UseAudioRecorderReturn {
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null
+  );
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       const chunks: BlobPart[] = [];
 
       // Handle data available event
-      recorder.ondataavailable = (e) => {
+      recorder.ondataavailable = e => {
         if (e.data.size > 0) {
           chunks.push(e.data);
         }
@@ -37,6 +39,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       // Handle recording stop
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
+
         setAudioBlob(blob);
         setIsRecording(false);
 
@@ -49,7 +52,9 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       setMediaRecorder(recorder);
       setIsRecording(true);
     } catch (err) {
-      setError('Failed to start recording. Please check your microphone permissions.');
+      setError(
+        'Failed to start recording. Please check your microphone permissions.'
+      );
       console.error('Recording error:', err);
     }
   }, []);

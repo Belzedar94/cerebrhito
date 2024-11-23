@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { ActivityService } from '../services/activity';
 import { ActivityStatus } from '../types/database';
@@ -68,13 +68,13 @@ export class ActivityController {
    */
   getActivitiesForChild = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const { category, tags } = req.query;
 
       const activities = await this.activityService.getActivitiesForChild(
         childId,
         category as string | undefined,
-        Array.isArray(tags) ? tags as string[] : undefined
+        Array.isArray(tags) ? (tags as string[]) : undefined
       );
 
       res.json(activities);
@@ -111,7 +111,7 @@ export class ActivityController {
    */
   updateActivityLog = async (req: Request, res: Response) => {
     try {
-      const logId = req.params.logId;
+      const { logId } = req.params;
       const validatedData = updateActivityLogSchema.parse(req.body);
 
       const activityLog = await this.activityService.updateActivityLog(logId, {
@@ -135,8 +135,9 @@ export class ActivityController {
    */
   getUpcomingActivities = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const activities = await this.activityService.getUpcomingActivities(childId);
+
       res.json(activities);
     } catch (error) {
       console.error('Get upcoming activities error:', error);
@@ -149,8 +150,9 @@ export class ActivityController {
    */
   getCompletedActivities = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const activities = await this.activityService.getCompletedActivities(childId);
+
       res.json(activities);
     } catch (error) {
       console.error('Get completed activities error:', error);
@@ -163,8 +165,9 @@ export class ActivityController {
    */
   generateSuggestions = async (req: Request, res: Response) => {
     try {
-      const childId = req.params.childId;
+      const { childId } = req.params;
       const suggestions = await this.activityService.generateActivitySuggestions(childId);
+
       res.json(suggestions);
     } catch (error) {
       console.error('Generate suggestions error:', error);

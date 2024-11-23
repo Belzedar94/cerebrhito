@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/lib/auth/AuthContext';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function ResetPassword() {
   const [email, setEmail] = useState('');
@@ -12,6 +12,7 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await resetPassword(email);
       setSuccess(true);
@@ -48,7 +49,8 @@ export default function ResetPassword() {
           {success && (
             <div className="rounded-md bg-green-50 p-4">
               <div className="text-sm text-green-700">
-                Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.
+                Se ha enviado un correo electrónico con instrucciones para
+                restablecer tu contraseña.
               </div>
             </div>
           )}
@@ -64,7 +66,7 @@ export default function ResetPassword() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Correo electrónico"
               />

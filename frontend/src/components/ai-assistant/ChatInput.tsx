@@ -5,11 +5,15 @@ interface ChatInputProps {
   isLoading: boolean;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({
+  onSendMessage,
+  isLoading,
+}) => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (message.trim() && !isLoading) {
       onSendMessage(message);
       setMessage('');
@@ -22,7 +26,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
         <input
           type="text"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={e => setMessage(e.target.value)}
           placeholder="Type your message..."
           className="flex-grow p-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary"
           aria-label="Chat message"

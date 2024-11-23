@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Tag, Star } from 'lucide-react';
+import { Clock, Star, Tag } from 'lucide-react';
 
 interface Activity {
   id: string;
@@ -16,11 +16,16 @@ interface ActivityCardProps {
   onSchedule: (id: string) => void;
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onSchedule }) => {
+const ActivityCard: React.FC<ActivityCardProps> = ({
+  activity,
+  onSchedule,
+}) => {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="p-4">
-        <h3 className="text-lg font-semibold mb-2 text-gray-800">{activity.name}</h3>
+        <h3 className="text-lg font-semibold mb-2 text-gray-800">
+          {activity.name}
+        </h3>
         <p className="text-sm text-gray-600 mb-4">{activity.description}</p>
         <div className="flex items-center text-sm text-gray-500 mb-2">
           <Clock className="w-4 h-4 mr-2" />
@@ -59,4 +64,3 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onSchedule }) => 
 };
 
 export default ActivityCard;
-

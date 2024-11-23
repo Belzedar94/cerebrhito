@@ -1,6 +1,7 @@
-import { useToast } from '@/components/ui/use-toast';
-import { ErrorResponse, getErrorDetails } from '@/lib/errors/types';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/use-toast';
+import type { ErrorResponse } from '@/lib/errors/types';
+import { getErrorDetails } from '@/lib/errors/types';
 
 export const useError = () => {
   const { toast } = useToast();
@@ -20,7 +21,7 @@ export const useError = () => {
       // Unknown error
       errorResponse = {
         code: 'INTERNAL_ERROR',
-        message: error.message || 'An unexpected error occurred'
+        message: error.message || 'An unexpected error occurred',
       };
     }
 
@@ -49,9 +50,9 @@ export const useError = () => {
                 default:
                   break;
               }
-            }
+            },
           }
-        : undefined
+        : undefined,
     });
 
     // Return error details for additional handling if needed

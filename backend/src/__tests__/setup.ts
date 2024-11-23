@@ -7,24 +7,23 @@ logger.silent = !process.env.ENABLE_LOGS;
 expect.extend({
   toBeWithinRange(received: number, floor: number, ceiling: number) {
     const pass = received >= floor && received <= ceiling;
+
     if (pass) {
       return {
-        message: () =>
-          `expected ${received} not to be within range ${floor} - ${ceiling}`,
+        message: () => `expected ${received} not to be within range ${floor} - ${ceiling}`,
         pass: true,
       };
     } else {
       return {
-        message: () =>
-          `expected ${received} to be within range ${floor} - ${ceiling}`,
+        message: () => `expected ${received} to be within range ${floor} - ${ceiling}`,
         pass: false,
       };
     }
   },
   toBeValidUUID(received: string) {
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     const pass = uuidRegex.test(received);
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid UUID`,
@@ -40,6 +39,7 @@ expect.extend({
   toBeValidEmail(received: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const pass = emailRegex.test(received);
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid email`,
@@ -55,6 +55,7 @@ expect.extend({
   toBeValidURL(received: string) {
     try {
       new URL(received);
+
       return {
         message: () => `expected ${received} not to be a valid URL`,
         pass: true,
@@ -69,6 +70,7 @@ expect.extend({
   toBeValidDate(received: string) {
     const date = new Date(received);
     const pass = !isNaN(date.getTime());
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid date`,
@@ -84,6 +86,7 @@ expect.extend({
   toBeValidJSON(received: string) {
     try {
       JSON.parse(received);
+
       return {
         message: () => `expected ${received} not to be valid JSON`,
         pass: true,
@@ -98,6 +101,7 @@ expect.extend({
   toBeValidBase64(received: string) {
     const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
     const pass = base64Regex.test(received);
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be valid base64`,
@@ -113,6 +117,7 @@ expect.extend({
   toBeValidJWT(received: string) {
     const jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/;
     const pass = jwtRegex.test(received);
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid JWT`,
@@ -128,6 +133,7 @@ expect.extend({
   toBeValidPhoneNumber(received: string) {
     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
     const pass = phoneRegex.test(received);
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid phone number`,
@@ -144,6 +150,7 @@ expect.extend({
     const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
     const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
     const pass = ipv4Regex.test(received) || ipv6Regex.test(received);
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid IP address`,
@@ -159,6 +166,7 @@ expect.extend({
   toBeValidMIMEType(received: string) {
     const mimeRegex = /^[a-z]+\/[a-z0-9\-\+\.]+$/i;
     const pass = mimeRegex.test(received);
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid MIME type`,
@@ -174,6 +182,7 @@ expect.extend({
   toBeValidLanguageCode(received: string) {
     const langRegex = /^[a-z]{2}(-[A-Z]{2})?$/;
     const pass = langRegex.test(received);
+
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid language code`,
@@ -185,7 +194,7 @@ expect.extend({
         pass: false,
       };
     }
-  }
+  },
 });
 
 // Add global test utilities
@@ -222,5 +231,5 @@ declare global {
     }
   }
 
-  var sleep: (ms: number) => Promise<void>;
+  let sleep: (ms: number) => Promise<void>;
 }

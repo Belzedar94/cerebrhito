@@ -8,7 +8,9 @@ export function ChatMessage({ role, content, timestamp }: ChatMessageProps) {
   const isUser = role === 'user';
 
   return (
-    <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div
+      className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-4`}
+    >
       <div
         className={`max-w-[80%] rounded-lg px-4 py-2 ${
           isUser

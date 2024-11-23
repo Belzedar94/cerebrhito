@@ -3,7 +3,12 @@ import { z } from 'zod';
 import { ActivityController } from '../controllers/activity';
 import { AuthMiddleware } from '../middleware/auth';
 import { apiLimiter } from '../middleware/rateLimiter';
-import { validateRequest, validateFileUpload, validatePagination, validateSort } from '../middleware/validation';
+import {
+  validateRequest,
+  validateFileUpload,
+  validatePagination,
+  validateSort,
+} from '../middleware/validation';
 import {
   activitySchema,
   activityLogSchema,
@@ -17,7 +22,7 @@ import {
   MAX_FILE_SIZE,
   ALLOWED_IMAGE_TYPES,
   ALLOWED_VIDEO_TYPES,
-  ALLOWED_DOCUMENT_TYPES
+  ALLOWED_DOCUMENT_TYPES,
 } from '../validation/schemas';
 
 const router = Router();
@@ -29,15 +34,17 @@ router.use(authMiddleware.authenticate);
 router.use(apiLimiter);
 
 // Activity management
-router.post('/',
+router.post(
+  '/',
   authMiddleware.requireRole(['professional']),
   validateRequest({
-    body: activitySchema
+    body: activitySchema,
   }),
   activityController.createActivity
 );
 
-router.get('/',
+router.get(
+  '/',
   validateRequest({
     query: z.object({
       category: z.string().optional(),
@@ -50,51 +57,55 @@ router.get('/',
       status: z.enum(['draft', 'published', 'archived']).optional(),
       createdBy: idSchema.optional(),
       ...paginationSchema.shape,
-      ...sortSchema.shape
-    })
+      ...sortSchema.shape,
+    }),
   }),
   validatePagination(),
   validateSort(['name', 'createdAt', 'category', 'difficulty']),
   activityController.listActivities
 );
 
-router.get('/:activityId',
+router.get(
+  '/:activityId',
   validateRequest({
     params: z.object({
-      activityId: idSchema
-    })
+      activityId: idSchema,
+    }),
   }),
   activityController.getActivity
 );
 
-router.put('/:activityId',
+router.put(
+  '/:activityId',
   authMiddleware.requireRole(['professional']),
   validateRequest({
     params: z.object({
-      activityId: idSchema
+      activityId: idSchema,
     }),
-    body: updateActivitySchema
+    body: updateActivitySchema,
   }),
   activityController.updateActivity
 );
 
-router.delete('/:activityId',
+router.delete(
+  '/:activityId',
   authMiddleware.requireRole(['professional']),
   validateRequest({
     params: z.object({
-      activityId: idSchema
-    })
+      activityId: idSchema,
+    }),
   }),
   activityController.deleteActivity
 );
 
 // Activity media
-router.post('/:activityId/media',
+router.post(
+  '/:activityId/media',
   authMiddleware.requireRole(['professional']),
   validateRequest({
     params: z.object({
-      activityId: idSchema
-    })
+      activityId: idSchema,
+    }),
   }),
   validateFileUpload(
     [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES, ...ALLOWED_DOCUMENT_TYPES],
@@ -103,197 +114,211 @@ router.post('/:activityId/media',
   activityController.uploadActivityMedia
 );
 
-router.delete('/:activityId/media/:mediaId',
+router.delete(
+  '/:activityId/media/:mediaId',
   authMiddleware.requireRole(['professional']),
   validateRequest({
     params: z.object({
       activityId: idSchema,
-      mediaId: idSchema
-    })
+      mediaId: idSchema,
+    }),
   }),
   activityController.deleteActivityMedia
 );
 
 // Activity suggestions
-router.get('/child/:childId/suggestions',
+router.get(
+  '/child/:childId/suggestions',
   validateRequest({
     params: z.object({
-      childId: idSchema
+      childId: idSchema,
     }),
     query: z.object({
       category: z.string().optional(),
       includeCompleted: z.boolean().optional(),
-      limit: z.number().int().min(1).max(20).default(10)
-    })
+      limit: z.number().int().min(1).max(20).default(10),
+    }),
   }),
   activityController.generateSuggestions
 );
 
 // Activity scheduling and tracking
-router.get('/child/:childId',
+router.get(
+  '/child/:childId',
   validateRequest({
     params: z.object({
-      childId: idSchema
+      childId: idSchema,
     }),
     query: z.object({
       startDate: dateSchema.optional(),
       endDate: dateSchema.optional(),
       status: z.enum(['scheduled', 'completed', 'cancelled']).optional(),
       ...paginationSchema.shape,
-      ...sortSchema.shape
-    })
+      ...sortSchema.shape,
+    }),
   }),
   validatePagination(),
   validateSort(['scheduledFor', 'completedAt', 'status']),
   activityController.getActivitiesForChild
 );
 
-router.get('/child/:childId/upcoming',
+router.get(
+  '/child/:childId/upcoming',
   validateRequest({
     params: z.object({
-      childId: idSchema
+      childId: idSchema,
     }),
     query: z.object({
       days: z.number().int().min(1).max(30).default(7),
-      ...paginationSchema.shape
-    })
+      ...paginationSchema.shape,
+    }),
   }),
   validatePagination(),
   activityController.getUpcomingActivities
 );
 
-router.get('/child/:childId/completed',
+router.get(
+  '/child/:childId/completed',
   validateRequest({
     params: z.object({
-      childId: idSchema
+      childId: idSchema,
     }),
     query: z.object({
       startDate: dateSchema.optional(),
       endDate: dateSchema.optional(),
       ...paginationSchema.shape,
-      ...sortSchema.shape
-    })
+      ...sortSchema.shape,
+    }),
   }),
   validatePagination(),
   validateSort(['completedAt', 'enjoymentLevel', 'difficultyLevel']),
   activityController.getCompletedActivities
 );
 
-router.post('/schedule',
+router.post(
+  '/schedule',
   validateRequest({
     body: z.object({
       child_id: idSchema,
       activity_id: idSchema,
       scheduled_for: dateSchema,
-      duration_minutes: z.number()
+      duration_minutes: z
+        .number()
         .int('Duration must be a whole number')
         .min(1, 'Duration must be at least 1 minute')
         .max(MAX_ACTIVITY_DURATION, 'Duration cannot exceed 8 hours'),
-      notes: z.string()
-        .max(1000, 'Notes must not exceed 1000 characters')
-        .optional(),
-      reminders: z.array(z.object({
-        type: z.enum(['email', 'push', 'sms']),
-        minutes_before: z.number()
-          .int('Reminder time must be a whole number')
-          .min(0, 'Reminder time cannot be negative')
-          .max(10080) // 1 week in minutes
-      }))
+      notes: z.string().max(1000, 'Notes must not exceed 1000 characters').optional(),
+      reminders: z
+        .array(
+          z.object({
+            type: z.enum(['email', 'push', 'sms']),
+            minutes_before: z
+              .number()
+              .int('Reminder time must be a whole number')
+              .min(0, 'Reminder time cannot be negative')
+              .max(10080), // 1 week in minutes
+          })
+        )
         .max(5, 'Cannot have more than 5 reminders')
-        .optional()
-    })
+        .optional(),
+    }),
   }),
   activityController.scheduleActivity
 );
 
-router.put('/schedule/:scheduleId',
+router.put(
+  '/schedule/:scheduleId',
   validateRequest({
     params: z.object({
-      scheduleId: idSchema
+      scheduleId: idSchema,
     }),
-    body: z.object({
-      scheduled_for: dateSchema.optional(),
-      duration_minutes: z.number()
-        .int('Duration must be a whole number')
-        .min(1, 'Duration must be at least 1 minute')
-        .max(MAX_ACTIVITY_DURATION, 'Duration cannot exceed 8 hours')
-        .optional(),
-      notes: z.string()
-        .max(1000, 'Notes must not exceed 1000 characters')
-        .optional(),
-      status: z.enum(['scheduled', 'cancelled']).optional(),
-      reminders: z.array(z.object({
-        type: z.enum(['email', 'push', 'sms']),
-        minutes_before: z.number()
-          .int('Reminder time must be a whole number')
-          .min(0, 'Reminder time cannot be negative')
-          .max(10080) // 1 week in minutes
-      }))
-        .max(5, 'Cannot have more than 5 reminders')
-        .optional()
-    }).refine(
-      data => Object.keys(data).length > 0,
-      {
-        message: 'At least one field must be provided for update'
-      }
-    )
+    body: z
+      .object({
+        scheduled_for: dateSchema.optional(),
+        duration_minutes: z
+          .number()
+          .int('Duration must be a whole number')
+          .min(1, 'Duration must be at least 1 minute')
+          .max(MAX_ACTIVITY_DURATION, 'Duration cannot exceed 8 hours')
+          .optional(),
+        notes: z.string().max(1000, 'Notes must not exceed 1000 characters').optional(),
+        status: z.enum(['scheduled', 'cancelled']).optional(),
+        reminders: z
+          .array(
+            z.object({
+              type: z.enum(['email', 'push', 'sms']),
+              minutes_before: z
+                .number()
+                .int('Reminder time must be a whole number')
+                .min(0, 'Reminder time cannot be negative')
+                .max(10080), // 1 week in minutes
+            })
+          )
+          .max(5, 'Cannot have more than 5 reminders')
+          .optional(),
+      })
+      .refine(data => Object.keys(data).length > 0, {
+        message: 'At least one field must be provided for update',
+      }),
   }),
   activityController.updateScheduledActivity
 );
 
-router.post('/log',
+router.post(
+  '/log',
   validateRequest({
-    body: activityLogSchema
+    body: activityLogSchema,
   }),
   activityController.createActivityLog
 );
 
-router.put('/log/:logId',
+router.put(
+  '/log/:logId',
   validateRequest({
     params: z.object({
-      logId: idSchema
+      logId: idSchema,
     }),
-    body: activityLogSchema.partial().extend({
-      last_modified_by: idSchema
-    }).refine(
-      data => Object.keys(data).length > 1,
-      {
-        message: 'At least one field must be provided for update'
-      }
-    )
+    body: activityLogSchema
+      .partial()
+      .extend({
+        last_modified_by: idSchema,
+      })
+      .refine(data => Object.keys(data).length > 1, {
+        message: 'At least one field must be provided for update',
+      }),
   }),
   activityController.updateActivityLog
 );
 
-router.delete('/log/:logId',
+router.delete(
+  '/log/:logId',
   validateRequest({
     params: z.object({
-      logId: idSchema
-    })
+      logId: idSchema,
+    }),
   }),
   activityController.deleteActivityLog
 );
 
 // Activity media for logs
-router.post('/log/:logId/media',
-  validateRequest({
-    params: z.object({
-      logId: idSchema
-    })
-  }),
-  validateFileUpload(
-    [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES],
-    MAX_FILE_SIZE
-  ),
-  activityController.uploadLogMedia
-);
-
-router.delete('/log/:logId/media/:mediaId',
+router.post(
+  '/log/:logId/media',
   validateRequest({
     params: z.object({
       logId: idSchema,
-      mediaId: idSchema
-    })
+    }),
+  }),
+  validateFileUpload([...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES], MAX_FILE_SIZE),
+  activityController.uploadLogMedia
+);
+
+router.delete(
+  '/log/:logId/media/:mediaId',
+  validateRequest({
+    params: z.object({
+      logId: idSchema,
+      mediaId: idSchema,
+    }),
   }),
   activityController.deleteLogMedia
 );

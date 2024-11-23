@@ -1,5 +1,5 @@
 import { DatabaseService } from './database';
-import { Activity, ActivityLog, ActivityStatus } from '../types/database';
+import type { Activity, ActivityLog, ActivityStatus } from '../types/database';
 import { AIAssistantService } from './ai-assistant';
 
 interface CreateActivityData {
@@ -57,9 +57,14 @@ export class ActivityService {
    * Get activities suitable for a child's age
    * Optionally filtered by category and tags
    */
-  async getActivitiesForChild(childId: string, category?: string, tags?: string[]): Promise<Activity[]> {
+  async getActivitiesForChild(
+    childId: string,
+    category?: string,
+    tags?: string[]
+  ): Promise<Activity[]> {
     // Get child's age
     const child = await this.db.getChildById(childId);
+
     if (!child) {
       throw new Error('Child not found');
     }
@@ -77,13 +82,15 @@ export class ActivityService {
     );
 
     // Filter by category and tags if provided
-    return activities.filter((activity) => {
+    return activities.filter(activity => {
       if (category && activity.category !== category) {
         return false;
       }
-      if (tags && !tags.every((tag) => activity.tags.includes(tag))) {
+
+      if (tags && !tags.every(tag => activity.tags.includes(tag))) {
         return false;
       }
+
       return true;
     });
   }
@@ -94,12 +101,14 @@ export class ActivityService {
   async scheduleActivity(data: ScheduleActivityData): Promise<ActivityLog> {
     // Verify child exists
     const child = await this.db.getChildById(data.childId);
+
     if (!child) {
       throw new Error('Child not found');
     }
 
     // Verify activity exists and is age-appropriate
     const activity = await this.db.getActivityById(data.activityId);
+
     if (!activity) {
       throw new Error('Activity not found');
     }
@@ -109,11 +118,8 @@ export class ActivityService {
         (1000 * 60 * 60 * 24 * 30.44)
     );
 
-    if (
-      ageInMonths < activity.min_age_months - 3 ||
-      ageInMonths > activity.max_age_months + 3
-    ) {
-      throw new Error('Activity not suitable for child\'s age');
+    if (ageInMonths < activity.min_age_months - 3 || ageInMonths > activity.max_age_months + 3) {
+      throw new Error("Activity not suitable for child's age");
     }
 
     // Create activity log
@@ -133,6 +139,7 @@ export class ActivityService {
    */
   async updateActivityLog(logId: string, data: UpdateActivityLogData): Promise<ActivityLog> {
     const log = await this.db.getActivityLogById(logId);
+
     if (!log) {
       throw new Error('Activity log not found');
     }
@@ -149,7 +156,7 @@ export class ActivityService {
     if (data.status === 'completed') {
       const activity = await this.db.getActivityById(log.activity_id);
       const child = await this.db.getChildById(log.child_id);
-      
+
       if (activity && child) {
         const feedback = await this.aiService.processMessage(
           child.user_id,
@@ -161,7 +168,7 @@ export class ActivityService {
 
         // Update log with AI feedback
         await this.db.updateActivityLog(logId, {
-          notes: data.notes 
+          notes: data.notes
             ? `${data.notes}\n\nAI Feedback: ${feedback.text}`
             : `AI Feedback: ${feedback.text}`,
         });
@@ -190,6 +197,7 @@ export class ActivityService {
    */
   async generateActivitySuggestions(childId: string): Promise<Activity[]> {
     const child = await this.db.getChildById(childId);
+
     if (!child) {
       throw new Error('Child not found');
     }
@@ -198,16 +206,12 @@ export class ActivityService {
     const recentActivities = await this.db.getRecentActivitiesByChildId(childId, 5);
 
     // Generate prompt for AI
-    const prompt = `Please suggest 3 new age-appropriate activities for a child who is ${
-      Math.floor(
-        (new Date().getTime() - new Date(child.date_of_birth).getTime()) /
-          (1000 * 60 * 60 * 24 * 30.44)
-      )
-    } months old. ${
+    const prompt = `Please suggest 3 new age-appropriate activities for a child who is ${Math.floor(
+      (new Date().getTime() - new Date(child.date_of_birth).getTime()) /
+        (1000 * 60 * 60 * 24 * 30.44)
+    )} months old. ${
       recentActivities.length > 0
-        ? `Recent activities: ${recentActivities
-            .map((log) => log.activity.name)
-            .join(', ')}`
+        ? `Recent activities: ${recentActivities.map(log => log.activity.name).join(', ')}`
         : ''
     }
 
@@ -239,6 +243,7 @@ Format the response as a JSON array.`;
           tags: suggestion.tags.split(',').map((t: string) => t.trim()),
           aiGenerated: true,
         });
+
         activities.push(activity);
       }
 
