@@ -23,8 +23,16 @@ function render(ui: React.ReactElement, options = {}) {
   return rtlRender(ui, { wrapper: Wrapper, ...options });
 }
 
-// Re-export everything
-export * from '@testing-library/react';
+// Export everything except render from testing-library/react
+export type { RenderOptions, RenderResult } from '@testing-library/react';
+export {
+  act,
+  cleanup,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 
-// Override render method
+// Export our custom render method
 export { render };
