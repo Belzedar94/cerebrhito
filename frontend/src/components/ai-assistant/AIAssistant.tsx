@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-
 import { useAIAssistant } from '@/hooks/useAIAssistant';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
@@ -26,11 +25,11 @@ export function AIAssistant({ childId = null }: AIAssistantProps) {
   };
 
   return (
-    <div className="flex h-full flex-col bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="flex h-full flex-col bg-background rounded-lg shadow-md overflow-hidden">
       <div className="border-b p-4 flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold">CerebrHito AI Assistant</h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Your expert in child development
           </p>
         </div>
@@ -46,7 +45,7 @@ export function AIAssistant({ childId = null }: AIAssistantProps) {
 
       <ScrollArea className="flex-1 p-4">
         {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-gray-500">
+          <div className="flex h-full items-center justify-center text-muted-foreground">
             <p>Hello! How can I assist you today?</p>
           </div>
         ) : (
@@ -60,7 +59,7 @@ export function AIAssistant({ childId = null }: AIAssistantProps) {
           ))
         )}
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-700">
+          <div className="mb-4 rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
             {error}
           </div>
         )}
