@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import ActivityScheduler from '@/components/activities/ActivityScheduler';
 import { AIAssistant } from '@/components/ai-assistant/AIAssistant';
 import MainLayout from '@/components/layout/MainLayout';
