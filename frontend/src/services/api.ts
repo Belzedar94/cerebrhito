@@ -27,7 +27,7 @@ export const api = createApi({
     },
   }),
   reducerPath: 'api',
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     getActivities: builder.query<Activity[], void>({
       query: () => 'activities',
     }),
