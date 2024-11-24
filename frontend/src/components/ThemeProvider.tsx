@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
+
 type Attribute = 'class' | 'data-theme';
 
 interface ThemeProviderProps {
