@@ -1,7 +1,6 @@
 import React from 'react';
 
-interface CalendarProps {
-  className?: string;
+interface CalendarProps extends React.HTMLAttributes<HTMLDivElement> {
   mode?: string;
   selected?: Date;
   onSelect?: (date: Date) => void;
