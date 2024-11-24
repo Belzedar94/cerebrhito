@@ -1,12 +1,7 @@
-import '@testing-library/jest-dom';
+import type { TestingLibraryMatchers } from '@types/testing-library__jest-dom';
 
 declare global {
   namespace jest {
-    interface Matchers<R> {
-      toBeInTheDocument(): R;
-      toHaveTextContent(text: string | RegExp): R;
-      toBeDisabled(): R;
-      toHaveValue(value: string | string[] | number | null): R;
-    }
+    interface Matchers<R> extends TestingLibraryMatchers<R, HTMLElement> {}
   }
 }
