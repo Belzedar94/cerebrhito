@@ -27,6 +27,7 @@ export const api = createApi({
     },
   }),
   reducerPath: 'api',
+  tagTypes: ['Activities', 'Milestones', 'ActivityLogs'],
   endpoints: builder => ({
     getActivities: builder.query<Activity[], void>({
       query: () => 'activities',

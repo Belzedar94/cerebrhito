@@ -29,8 +29,8 @@ export function ActivityCalendar({ childId }: ActivityCalendarProps) {
         setLoading(true);
 
         const [upcoming, completed] = await Promise.all([
-          getUpcomingActivities(childId, selectedDate),
-          getCompletedActivities(childId, selectedDate),
+          getUpcomingActivities(childId),
+          getCompletedActivities(childId),
         ]);
 
         setUpcomingActivities(upcoming);
