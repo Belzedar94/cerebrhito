@@ -275,9 +275,7 @@ export function useAsyncQueue<T>(
 
         results.push(
           ...batchResults
-            .filter(
-              (r): r is PromiseFulfilledResult<T> => r.status === 'fulfilled'
-            )
+            .filter((r): r is PromiseFulfilledResult<T> => r.status === 'fulfilled')
             .map(r => r.value)
         );
       }

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Activity } from '@/types/activity';
 
-interface ActivityCardProps {
+interface ActivityCardProps extends React.HTMLAttributes<HTMLDivElement> {
   activity: Activity;
   status?: string;
   scheduledFor?: string;

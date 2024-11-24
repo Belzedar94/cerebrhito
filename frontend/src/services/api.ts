@@ -1,9 +1,6 @@
-import type {
-  BaseQueryFn,
-  FetchArgs,
-  FetchBaseQueryError,
-} from '@reduxjs/toolkit/query';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { BaseQueryFn, FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { EndpointBuilder } from '@reduxjs/toolkit/dist/query/endpointDefinitions';
 import type { RootState } from '@/store';
 import type {
   Activity,
